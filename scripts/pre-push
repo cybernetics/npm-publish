@@ -4,6 +4,7 @@ set -e
 echo "Running Gradle check"
 
 ./gradlew --quiet check
+./gradlew --quiet clean
 
 echo "Gradle check completed."
 ######## GRADLE HOOK END ########
