@@ -18,7 +18,7 @@ class PublishTaskFTest : WordSpec(
                 "browser"()
               }
               "sourceSets.apply" {
-                "named(\"main\")" {
+                "named"("main".raw) {
                   "dependencies" {
                     "implementation"("devNpm(\"axios\", \"*\")")
                     "api"("npm(\"snabbdom\", \"*\")")
@@ -37,11 +37,11 @@ class PublishTaskFTest : WordSpec(
         gradleExec(
           {
             kotlinMpp {
-              "js(\"CustomJS\")" {
+              "js"("CustomJS".raw) {
                 "browser"()
               }
-              "sourceSets.apply" {
-                "named(\"CustomJSMain\")" {
+              "sourceSets" {
+                "named"("CustomJSMain".raw) {
                   "dependencies" {
                     "implementation"("devNpm(\"axios\", \"*\")")
                     "api"("npm(\"snabbdom\", \"*\")")

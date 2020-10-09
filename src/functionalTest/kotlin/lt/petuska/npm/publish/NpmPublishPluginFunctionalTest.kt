@@ -29,14 +29,16 @@ private fun taskCreationTest(
         if (kotlinPlugin.equals("multiplatform", true)) {
           kotlinMpp {
             jsTargets.forEach { target ->
-              "js(\"$target\")" {
+              "js"(target.raw) {
                 "browser"()
               }
               "sourceSets" {
-                "named(\"${target}Main\")" {
+                "named"("${target}Main".raw) {
                   "dependencies" {
-                    "implementation"("devNpm(\"axios\", \"*\")")
-                    "api"("npm(\"snabbdom\", \"*\")")
+                    "val axios" to "devNpm"("axios".raw, "*".raw)
+                    "implementation"("axios")
+                    "val snabbdom" to "npm"("snabbdom".raw, "*".raw)
+                    "api"("snabbdom")
                   }
                 }
               }

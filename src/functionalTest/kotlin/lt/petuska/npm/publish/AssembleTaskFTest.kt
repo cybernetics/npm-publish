@@ -18,7 +18,7 @@ class AssembleTaskFTest : WordSpec(
                 "browser"()
               }
               "sourceSets.apply" {
-                "named(\"main\")" {
+                "named"("main".raw) {
                   "dependencies" {
                     "implementation"("devNpm(\"axios\", \"*\")")
                     "api"("npm(\"snabbdom\", \"*\")")
@@ -39,8 +39,8 @@ class AssembleTaskFTest : WordSpec(
               "js" {
                 "browser"()
               }
-              "sourceSets.apply" {
-                "named(\"jsMain\")" {
+              "sourceSets" {
+                "named"("jsMain".raw) {
                   "dependencies" {
                     "implementation"("devNpm(\"axios\", \"*\")")
                     "api"("npm(\"snabbdom\", \"*\")")
