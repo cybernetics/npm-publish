@@ -1,5 +1,6 @@
 import kotlinx.validation.ApiValidationExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintCheckTask
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
@@ -16,9 +17,6 @@ plugins {
     idea
 }
 
-group = "lt.petuska"
-version = "1.0.2"
-
 buildscript {
     dependencies {
         classpath("org.jetbrains.kotlinx:binary-compatibility-validator:0.2.3")
@@ -26,6 +24,9 @@ buildscript {
 }
 apply(plugin = "binary-compatibility-validator")
 configure<ApiValidationExtension> {}
+
+group = "lt.petuska"
+version = "0.0.5"
 
 idea {
     module {
@@ -43,53 +44,22 @@ repositories {
     maven("https://dl.bintray.com/kotlin/kotlin-dev")
     maven("https://kotlin.bintray.com/kotlinx")
     maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-    gradlePluginPortal()
 }
 
-kotlin {
-    dependencies {
-        api(kotlin("gradle-plugin", "1.4.10"))
-        testImplementation("io.kotest:kotest-runner-junit5:4.1.0")
-    }
-    target.compilations {
-        val main by getting
-        create("functionalTest") {
-            dependencies {
-            }
-            associateWith(main)
-            val functionalTest by tasks.register<Test>("functionalTest") {
-                group = JavaBasePlugin.VERIFICATION_GROUP
-                description = "Runs functional tests"
-                testClassesDirs = output.classesDirs
-                classpath = project.sourceSets["functionalTest"].runtimeClasspath
-            }
-            tasks.named("check") {
-                dependsOn(functionalTest)
-            }
-        }
-    }
-    configurations.getByName("functionalTestImplementation") {
-        extendsFrom(configurations.getByName("implementation"))
-        extendsFrom(configurations.getByName("testImplementation"))
-    }
-
-    configurations.getByName("functionalTestRuntimeOnly") {
-        extendsFrom(configurations.getByName("runtimeOnly"))
-        extendsFrom(configurations.getByName("testRuntimeOnly"))
-    }
+dependencies {
+    api(kotlin("gradle-plugin", "1.4.10"))
+    testImplementation("io.kotest:kotest-runner-junit5:4.1.0")
 }
 
-val pluginId = "lt.petuska.npm.publish"
 gradlePlugin {
     plugins {
         create(project.name) {
-            id = pluginId
-            displayName = "NPM package publishing to NPM repositories"
+            id = "lt.petuska.npm.publish"
+            displayName = "Kotlin/JS publishing to NPM repositories"
             description =
                 """
-              A maven-publish alternative for NPM package publishing.      
-              Integrates with kotlin JS/MPP plugins (if applied) to automatically 
-              setup publishing to NPM repositories for all JS targets.
+              Integrates with kotlin JS/MPP plugins to setup publishing to NPM repositories for all JS targets.
+              Also allows for arbitrary non-kotlin publications
                 """.trimIndent()
             implementationClass = "lt.petuska.npm.publish.NpmPublishPlugin"
         }
@@ -97,8 +67,8 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "http://${project.group}.gitlab.io/${project.name}"
-    vcsUrl = "https://gitlab.com/${project.group}/${project.name}.git"
+    website = "https://gitlab.com/lt.petuska/npm-publish/-/wikis/home"
+    vcsUrl = "https://gitlab.com/lt.petuska/npm-publish"
     tags = listOf("npm", "publishing", "kotlin", "node")
 }
 
@@ -108,7 +78,28 @@ tasks {
             jvmTarget = "1.8"
         }
     }
+    withType<KtlintCheckTask> {
+        dependsOn("ktlintFormat")
+    }
+    test {
+        useJUnitPlatform()
+    }
+    val functionalTest by registering(Test::class) {
+        testClassesDirs = functionalTestSourceSet.output.classesDirs
+        classpath = functionalTestSourceSet.runtimeClasspath
+        useJUnitPlatform()
+        group = "verification"
+    }
+    named("check") {
+        dependsOn(functionalTest)
+    }
 }
+
+val functionalTestSourceSet = sourceSets.create("functionalTest") {
+}
+
+gradlePlugin.testSourceSets(functionalTestSourceSet)
+configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
 val gitCommitHash by lazy {
     ByteArrayOutputStream().use { os ->
@@ -121,52 +112,42 @@ val gitCommitHash by lazy {
 }
 
 publishing {
-    fun checkAnyTrue(vararg props: String) = props.any {
-        "true".equals(project.properties[it] as String?, true)
-    }
-
-    fun checkNoneStarting(vararg props: String) = props.none {
-        project.properties.keys.any { p -> p.startsWith(it) }
-    }
     publications {
         repositories {
-            fun repository(name: String, config: MavenArtifactRepository.() -> Unit) {
-                if ((checkAnyTrue("publish.all", "publish.$name") && checkNoneStarting("publish.skip")) &&
-                    checkNoneStarting("publish.skip.$name")
-                ) {
-                    maven {
-                        this.name = name
-                        config()
+            if (!project.hasProperty("publish.skip.GitLab")) {
+                maven {
+                    name = "GitLab"
+                    url = uri(
+                        "https://gitlab.com/api/v4/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven"
+                    )
+                    credentials(HttpHeaderCredentials::class) {
+                        val jobToken = System.getenv("CI_JOB_TOKEN")
+                        if (jobToken != null) {
+                            // GitLab CI
+                            name = "Job-Token"
+                            value = jobToken
+                        } else {
+                            name = "Private-Token"
+                            value = System.getenv("PRIVATE_TOKEN")
+                        }
+                    }
+                    authentication {
+                        create<HttpHeaderAuthentication>("header")
                     }
                 }
             }
-            repository("GitLab") {
-                url = uri(
-                    "https://gitlab.com/api/v4/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven"
-                )
-                credentials(HttpHeaderCredentials::class) {
-                    val jobToken = System.getenv("CI_JOB_TOKEN")
-                    if (jobToken != null) {
-                        name = "Job-Token"
-                        value = jobToken
-                    } else {
-                        name = "Private-Token"
-                        value = System.getenv("PRIVATE_TOKEN")
+            if (!project.hasProperty("publish.skip.Bintray")) {
+                maven {
+                    name = "Bintray"
+                    url = uri(
+                        "https://api.bintray.com/maven/${System.getenv("BINTRAY_USER")}/${project.group}/${project.name}/" +
+                            ";publish=${if ("true".equals(project.properties["publish"] as? String?, true)) 1 else 0}" +
+                            ";override=${if ("true".equals(project.properties["override"] as? String?, true)) 1 else 0}"
+                    )
+                    credentials {
+                        username = System.getenv("BINTRAY_USER")
+                        password = System.getenv("BINTRAY_KEY")
                     }
-                }
-                authentication {
-                    create<HttpHeaderAuthentication>("header")
-                }
-            }
-            repository("Bintray") {
-                url = uri(
-                    "https://api.bintray.com/maven/${System.getenv("BINTRAY_USER")}/${project.group}/${project.name}/" +
-                        ";publish=${if ("true".equals(project.properties["publish"] as? String?, true)) 1 else 0}" +
-                        ";override=${if ("true".equals(project.properties["override"] as? String?, true)) 1 else 0}"
-                )
-                credentials {
-                    username = System.getenv("BINTRAY_USER")
-                    password = System.getenv("BINTRAY_KEY")
                 }
             }
         }
@@ -176,7 +157,7 @@ publishing {
 afterEvaluate {
     tasks {
         withType<Wrapper> {
-            gradleVersion = "6.7"
+            gradleVersion = "6.6.1"
             distributionType = Wrapper.DistributionType.ALL
         }
         withType<Jar> {
@@ -185,13 +166,10 @@ afterEvaluate {
                     "Built-By" to System.getProperty("user.name"),
                     "Build-Jdk" to System.getProperty("java.version"),
                     "Implementation-Version" to project.version,
-                    "Created-By" to "Gradle v${org.gradle.util.GradleVersion.current()}",
+                    "Created-By" to org.gradle.util.GradleVersion.current(),
                     "Created-From" to gitCommitHash
                 )
             }
-        }
-        withType<Test> {
-            useJUnitPlatform()
         }
         val lib = project
         val publish by getting
@@ -203,13 +181,8 @@ afterEvaluate {
                 fun buildPackageLink(prj: Project) =
                     """
           {
-            "name": "[Bintray] ${prj.name}",
+            "name": "${prj.name}",
             "url": "https://bintray.com/${System.getenv("BINTRAY_USER")!!}/${prj.group}/${prj.name}/${prj.version}",
-            "link_type": "package"
-          },
-          {
-            "name": "[GradlePluginPortal] ${prj.name}",
-            "url": "https://plugins.gradle.org/plugin/$pluginId/${prj.version}",
             "link_type": "package"
           }
                     """.trimIndent()
