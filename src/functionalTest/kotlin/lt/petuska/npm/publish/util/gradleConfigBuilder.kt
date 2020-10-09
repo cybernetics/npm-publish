@@ -10,10 +10,10 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
-private fun KotlinBuilder.buildProject(kotlinPlugin:String? = null, config: KotlinBuilder.() -> Unit = {}) = apply {
+private fun KotlinBuilder.buildProject(kotlinPlugin: String? = null, config: KotlinBuilder.() -> Unit = {}) = apply {
   "plugins" {
     +"""id("$pluginName")"""
-    kotlinPlugin?.let{
+    kotlinPlugin?.let {
       +"kotlin(\"$it\")"
     }
   }
@@ -37,7 +37,7 @@ private fun KotlinBuilder.buildProject(kotlinPlugin:String? = null, config: Kotl
 }
 
 fun KotlinBuilder.kotlinMpp(config: KotlinBuilder.() -> Unit = {}) = buildProject("multiplatform") {
-  "kotlin"{
+  "kotlin" {
     config()
   }
 }
@@ -89,7 +89,7 @@ fun gradleExec(buildFile: KotlinBuilder.() -> Unit, vararg args: String): BuildR
         gradlePluginPortal()
       }
     }
-    """.trimIndent()
+      """.trimIndent()
     )
     val project = KotlinBuilder()
     val buildF = resolve("build.gradle.kts").apply {
@@ -108,5 +108,5 @@ fun gradleExec(buildFile: KotlinBuilder.() -> Unit, vararg args: String): BuildR
       // delete()
       throw e
     }
-  }//.also { delete() }
+  } // .also { delete() }
 }

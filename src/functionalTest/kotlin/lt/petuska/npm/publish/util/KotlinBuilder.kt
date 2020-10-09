@@ -1,6 +1,6 @@
 package lt.petuska.npm.publish.util
 
-class KotlinBuilder(private val stringBuilder:StringBuilder = StringBuilder()) : Appendable by stringBuilder {
+class KotlinBuilder(private val stringBuilder: StringBuilder = StringBuilder()) : Appendable by stringBuilder {
   operator fun String.invoke(config: KotlinBuilder.() -> Unit) = this@KotlinBuilder.also {
     appendln("$this {")
     config()
