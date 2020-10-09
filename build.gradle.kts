@@ -26,7 +26,7 @@ apply(plugin = "binary-compatibility-validator")
 configure<ApiValidationExtension> {}
 
 group = "lt.petuska"
-version = "0.0.5"
+version = "0.0.6"
 
 idea {
     module {
