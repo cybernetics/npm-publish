@@ -35,10 +35,8 @@ private fun taskCreationTest(
               "sourceSets" {
                 "named"("${target}Main".raw) {
                   "dependencies" {
-                    "val axios" to "devNpm"("axios".raw, "*".raw)
-                    "implementation"("axios")
-                    "val snabbdom" to "npm"("snabbdom".raw, "*".raw)
-                    "api"("snabbdom")
+                    "implementation"(arg { "devNpm"("axios".raw, "*".raw) })
+                    "api"(arg { "npm"("snabbdom".raw, "*".raw) })
                   }
                 }
               }
@@ -55,8 +53,8 @@ private fun taskCreationTest(
             "sourceSets" {
               "named(\"main\")" {
                 "dependencies" {
-                  "implementation"("devNpm(\"axios\", \"*\")")
-                  "api"("npm(\"snabbdom\", \"*\")")
+                  "implementation"(arg { "npm"("axios".raw, "*".raw) })
+                  "api"(arg { "devNpm"("snabbdom".raw, "*".raw) })
                 }
               }
             }

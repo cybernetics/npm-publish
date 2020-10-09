@@ -30,10 +30,6 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
     )
   }
 
-  infix fun String.to(value: String) = this@KotlinBuilder.also {
-    +"""${this@to} = "$value""""
-  }
-
   infix fun String.to(value: Any) = this@KotlinBuilder.also {
     +"${this@to} = $value"
   }
@@ -50,9 +46,13 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
     blocks.add("$str\n".kb)
   }
 
+  infix fun String.infix(other: Any) = this@KotlinBuilder.apply {
+    +"${this@infix} $other"
+  }
+
   infix fun KotlinBuilder.infix(other: Any) = this@KotlinBuilder.also {
     val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-    +"$last $other"
+    last infix other
   }
 
   infix fun KotlinBuilder.infix(other: KotlinBuilder) = this@KotlinBuilder.also {
@@ -65,9 +65,13 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
     it infix last
   }
 
+  infix fun String.chain(other: Any) = this@KotlinBuilder.apply {
+    +"${this@chain}.$other"
+  }
+
   infix fun KotlinBuilder.chain(other: Any) = this@KotlinBuilder.also {
     val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-    +"$last.$other"
+    last chain other
   }
 
   infix fun KotlinBuilder.chain(other: KotlinBuilder) = this@KotlinBuilder.also {

@@ -18,8 +18,8 @@ private fun KotlinBuilder.buildProject(kotlinPlugin: String? = null, config: Kot
     }
   }
 
-  "version" to pluginVersion
-  "group" to pluginGroup
+  "version" to pluginVersion.raw
+  "group" to pluginGroup.raw chain "toUpperCase()"
 
   "repositories" {
     "jcenter"()
@@ -56,8 +56,8 @@ fun KotlinBuilder.npmRepository(name: String = defaultRepoName, config: KotlinBu
       "repository(\"$name\")" {
         // +"registry = uri(\"https://registry.$name.org\")"
         "registry" to "uri"("https://registry.$name.org".raw)
-        "authToken" to "asdhkjsdfjvhnsdrishdl"
-        "otp" to "gfahsdjglknamsdkpjnmasdl"
+        "authToken" to "asdhkjsdfjvhnsdrishdl".raw
+        "otp" to "gfahsdjglknamsdkpjnmasdl".raw
         config()
       }
     }
