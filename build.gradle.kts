@@ -55,11 +55,12 @@ gradlePlugin {
     plugins {
         create(project.name) {
             id = "lt.petuska.npm.publish"
-            displayName = "Kotlin/JS publishing to NPM repositories"
+            displayName = "NPM package publishing to NPM repositories"
             description =
                 """
-              Integrates with kotlin JS/MPP plugins to setup publishing to NPM repositories for all JS targets.
-              Also allows for arbitrary non-kotlin publications
+              A maven-publish alternative for NPM package publishing.      
+              Integrates with kotlin JS/MPP plugins (if applied) to automatically 
+              setup publishing to NPM repositories for all JS targets.
                 """.trimIndent()
             implementationClass = "lt.petuska.npm.publish.NpmPublishPlugin"
         }
@@ -67,8 +68,8 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://gitlab.com/lt.petuska/npm-publish/-/wikis/home"
-    vcsUrl = "https://gitlab.com/lt.petuska/npm-publish"
+    website = "https://gitlab.com/${project.group}/${project.name}/-/wikis/home"
+    vcsUrl = "https://gitlab.com/${project.group}/${project.name}"
     tags = listOf("npm", "publishing", "kotlin", "node")
 }
 
