@@ -112,42 +112,51 @@ val gitCommitHash by lazy {
 }
 
 publishing {
+    fun checkAnyTrue(vararg props: String) = props.any {
+        "true".equals(project.properties[it] as String?, true)
+    }
+
+    fun checkNone(vararg props: String) = props.none {
+        project.hasProperty(it)
+    }
     publications {
         repositories {
-            if (!project.hasProperty("publish.skip.GitLab")) {
-                maven {
-                    name = "GitLab"
-                    url = uri(
-                        "https://gitlab.com/api/v4/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven"
-                    )
-                    credentials(HttpHeaderCredentials::class) {
-                        val jobToken = System.getenv("CI_JOB_TOKEN")
-                        if (jobToken != null) {
-                            // GitLab CI
-                            name = "Job-Token"
-                            value = jobToken
-                        } else {
-                            name = "Private-Token"
-                            value = System.getenv("PRIVATE_TOKEN")
-                        }
-                    }
-                    authentication {
-                        create<HttpHeaderAuthentication>("header")
+            fun repository(name: String, config: MavenArtifactRepository.() -> Unit) {
+                if (checkAnyTrue("publish.all", "publish.$name") || checkNone("publish.$name.skip")) {
+                    maven {
+                        this.name = name
+                        config()
                     }
                 }
             }
-            if (!project.hasProperty("publish.skip.Bintray")) {
-                maven {
-                    name = "Bintray"
-                    url = uri(
-                        "https://api.bintray.com/maven/${System.getenv("BINTRAY_USER")}/${project.group}/${project.name}/" +
-                            ";publish=${if ("true".equals(project.properties["publish"] as? String?, true)) 1 else 0}" +
-                            ";override=${if ("true".equals(project.properties["override"] as? String?, true)) 1 else 0}"
-                    )
-                    credentials {
-                        username = System.getenv("BINTRAY_USER")
-                        password = System.getenv("BINTRAY_KEY")
+            repository("GitLab") {
+                url = uri(
+                    "https://gitlab.com/api/v4/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven"
+                )
+                credentials(HttpHeaderCredentials::class) {
+                    val jobToken = System.getenv("CI_JOB_TOKEN")
+                    if (jobToken != null) {
+                        // GitLab CI
+                        name = "Job-Token"
+                        value = jobToken
+                    } else {
+                        name = "Private-Token"
+                        value = System.getenv("PRIVATE_TOKEN")
                     }
+                }
+                authentication {
+                    create<HttpHeaderAuthentication>("header")
+                }
+            }
+            repository("Bintray") {
+                url = uri(
+                    "https://api.bintray.com/maven/${System.getenv("BINTRAY_USER")}/${project.group}/${project.name}/" +
+                        ";publish=${if ("true".equals(project.properties["publish"] as? String?, true)) 1 else 0}" +
+                        ";override=${if ("true".equals(project.properties["override"] as? String?, true)) 1 else 0}"
+                )
+                credentials {
+                    username = System.getenv("BINTRAY_USER")
+                    password = System.getenv("BINTRAY_KEY")
                 }
             }
         }

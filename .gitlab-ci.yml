@@ -29,6 +29,18 @@ test:
       - build
       - .gradle
 
+publish:gradlePluginPortal:
+  stage: publish
+  script: gradle publishPlugins -Pgradle.publish.key="$GRADLE_PUBLISH_KEY" -Pgradle.publish.secret="$GRADLE_PUBLISH_SECRET" --stacktrace
+  only:
+    - master
+  cache:
+    key: "$CI_PIPELINE_ID"
+    policy: pull
+    paths:
+      - build
+      - .gradle
+
 publish:Bintray:
   stage: publish
   script: gradle publish -Ppublish.Bintray=true -Ppublish=true -Poverride=false --stacktrace
@@ -43,7 +55,6 @@ publish:Bintray:
 
 publish:GitLab:
   stage: publish
-  allow_failure: true
   script: gradle publish -Ppublish.GitLab=true -Ppublish=true -Poverride=false --stacktrace
   only:
     - master
@@ -54,43 +65,11 @@ publish:GitLab:
       - build
       - .gradle
 
-publish:gradlePluginPortal:
-  stage: publish
-  script: gradle publishPlugins -Pgradle.publish.key="$GRADLE_PUBLISH_KEY" -Pgradle.publish.secret="$GRADLE_PUBLISH_SECRET" --stacktrace
-  only:
-    - master
-  cache:
-    key: "$CI_PIPELINE_ID"
-    policy: pull
-    paths:
-      - build
-      - .gradle
-
-release:GitLab:
+release:gitLab:
   stage: release
-  script: gradle gitLabRelease -Ppublish=true -Poverride=false --stacktrace;
+  script: gradle gitLabRelease -Ppublish=true -Poverride=false --stacktrace
   only:
     - master
-  cache:
-    key: "$CI_PIPELINE_ID"
-    policy: pull
-    paths:
-      - build
-      - .gradle
-
-pages:
-  stage: release
-  script:
-    - gradle dokkaHtml;
-    - cp -avr build/dokka/html/ public;
-    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec gzip -f -k {} \;
-    - echo '/npm-publish /npm-publish/npm-publish/index.html 301' > public/_redirects;
-    - echo '/npm-publish/index.html /npm-publish/npm-publish/index.html 301' >> public/_redirects;
-  only:
-    - master
-  artifacts:
-    paths:
-      - public
   cache:
     key: "$CI_PIPELINE_ID"
     policy: pull
