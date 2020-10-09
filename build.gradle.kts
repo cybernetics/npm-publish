@@ -1,6 +1,5 @@
 import kotlinx.validation.ApiValidationExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jlleitschuh.gradle.ktlint.KtlintCheckTask
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
@@ -110,9 +109,6 @@ tasks {
         kotlinOptions {
             jvmTarget = "1.8"
         }
-    }
-    withType<KtlintCheckTask> {
-        dependsOn("ktlintFormat")
     }
     test {
         useJUnitPlatform()
