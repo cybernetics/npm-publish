@@ -4,19 +4,35 @@ Gradle plugin enabling NPM publishing (essentially `maven-publish` for NPM packa
 providing auto configurations.
 
 ## Setup
+Here's a bare minimum setup when using together with one of the kotlin plugins
+
 ```kotlin
 plugins {
   id("lt.petuska.npm.publish") version "<VERSION>"
-  kotlin("js") version "1.4.0" // Optional
+  kotlin("multiplatform") version "1.4.0" // Optional, also supports "js"
 }
 
 kotlin {
   js {
     browser() // or nodejs()
   }
-  dependencies {
-    implementation(npm("axios", "*"))
-    api(peerNpm("snabbdom", "*"))
+  sourceSets { // Optional for bare minimum setup
+    val jsMain by getting {
+      dependencies {
+        implementation(npm("axios", "*"))
+        api(peerNpm("snabbdom", "*"))
+      }
+    }
+  }
+}
+
+npmPublishing {
+  repositories {
+    repository("npmjs") {      
+      registry = uri("https://registry.npmjs.org")
+      authToken = "asdhkjsdfjvhnsdrishdl"
+      otp = "gfahsdjglknamsdkpjnmasdl"
+    }
   }
 }
 ```

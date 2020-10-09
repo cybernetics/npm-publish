@@ -10,16 +10,24 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
-private fun KotlinBuilder.buildProject(kotlinPlugin: String? = null, config: KotlinBuilder.() -> Unit = {}) = apply {
+private fun KotlinBuilder.buildProject(kotlinPlugin:String? = null, config: KotlinBuilder.() -> Unit = {}) = apply {
   "plugins" {
-    "id"(pluginName)
-    kotlinPlugin?.let {
-      "kotlin"(it) infix "version"(kotlinVersion) infix "apply" infix true
+    +"""id("$pluginName")"""
+    kotlinPlugin?.let{
+      +"kotlin(\"$it\")"
+    }
+  }
+  "buildscript" {
+    // "repositories" {
+    //   +"maven(\"https://plugins.gradle.org/m2/\")"
+    // }
+    "dependencies" {
+      +"classpath(\"org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion\")"
     }
   }
 
   "version" to pluginVersion
-  "group" to pluginGroup chain "toUpperCase()".fn
+  "group" to pluginGroup
 
   "repositories" {
     "jcenter"()
@@ -29,7 +37,7 @@ private fun KotlinBuilder.buildProject(kotlinPlugin: String? = null, config: Kot
 }
 
 fun KotlinBuilder.kotlinMpp(config: KotlinBuilder.() -> Unit = {}) = buildProject("multiplatform") {
-  "kotlin" {
+  "kotlin"{
     config()
   }
 }
@@ -54,7 +62,7 @@ fun KotlinBuilder.npmRepository(name: String = defaultRepoName, config: KotlinBu
   "npmPublishing" {
     "repositories" {
       "repository(\"$name\")" {
-        "registry" to "uri"("https://registry.$name.org")
+        +"registry = uri(\"https://registry.$name.org\")"
         "authToken" to "asdhkjsdfjvhnsdrishdl"
         "otp" to "gfahsdjglknamsdkpjnmasdl"
         config()
@@ -63,8 +71,7 @@ fun KotlinBuilder.npmRepository(name: String = defaultRepoName, config: KotlinBu
   }
 }
 
-fun gradleExec(buildFile: KotlinBuilder.() -> Unit, vararg args: String): BuildResult = gradleExec({}, buildFile, *args)
-fun gradleExec(preExec: (dir: File) -> Unit = {}, buildFile: KotlinBuilder.() -> Unit, vararg args: String): BuildResult = File("build/functionalTest").let {
+fun gradleExec(buildFile: KotlinBuilder.() -> Unit, vararg args: String): BuildResult = File("build/functionalTest").let {
   it.mkdirs()
   TemporaryFolder(it)
 }.run {
@@ -72,7 +79,6 @@ fun gradleExec(preExec: (dir: File) -> Unit = {}, buildFile: KotlinBuilder.() ->
   root.run {
     deleteRecursively()
     mkdirs()
-    preExec(this)
     resolve("settings.gradle.kts").writeText(
       """
     rootProject.name = "test-project"
@@ -83,12 +89,13 @@ fun gradleExec(preExec: (dir: File) -> Unit = {}, buildFile: KotlinBuilder.() ->
         gradlePluginPortal()
       }
     }
-      """.trimIndent()
+    """.trimIndent()
     )
-    resolve("build.gradle.kts").apply {
-      println(absolutePath)
-      writeText(KotlinBuilder(buildFile).toString())
+    val project = KotlinBuilder()
+    val buildF = resolve("build.gradle.kts").apply {
+      writeText(project.apply(buildFile).toString())
     }
+    println(buildF.absolutePath)
 
     try {
       GradleRunner.create()
@@ -101,5 +108,5 @@ fun gradleExec(preExec: (dir: File) -> Unit = {}, buildFile: KotlinBuilder.() ->
       // delete()
       throw e
     }
-  } // .also { delete() }
+  }//.also { delete() }
 }

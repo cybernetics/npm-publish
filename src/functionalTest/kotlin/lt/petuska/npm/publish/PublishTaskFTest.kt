@@ -7,67 +7,51 @@ import lt.petuska.npm.publish.util.kotlinMpp
 import lt.petuska.npm.publish.util.npmRepository
 import lt.petuska.npm.publish.util.publishTaskName
 
-class PublishTaskFTest : WordSpec(
-  {
-    "Running publishNpmPublication [JS]" should {
-      "succeed [JS]" {
-        gradleExec(
-          {
-            it.resolve("src/main/kotlin/index.kt").apply {
-              parentFile.mkdirs()
-              writeText("fun main(){}")
-            }
-          },
-          {
-            kotlinJs {
-              "js" {
-                "browser"()
+class PublishTaskFTest : WordSpec({
+  "Running publishNpmPublication [JS]" should {
+    "succeed [JS]" {
+      gradleExec({
+        kotlinJs {
+          "js" {
+            "browser"()
+          }
+          "sourceSets.apply" {
+            "named(\"main\")" {
+              "dependencies" {
+                "implementation"("devNpm(\"axios\", \"*\")")
+                "api"("npm(\"snabbdom\", \"*\")")
               }
-              "sourceSets" {
-                "named"("main") {
-                  "dependencies" {
-                    "implementation"(arg { "devNpm"("axios", "*") })
-                    "api"(arg { "npm"("snabbdom", "*") })
-                  }
-                }
-              }
-              npmRepository()
             }
-          },
-          publishTaskName("js"),
-          "--stacktrace",
-          "-Pnpm.publish.dry=true"
-        )
-      }
-      "succeed [MPP]" {
-        gradleExec(
-          {
-            it.resolve("src/CustomJSMain/kotlin/index.kt").apply {
-              parentFile.mkdirs()
-              writeText("fun main(){}")
-            }
-          },
-          {
-            kotlinMpp {
-              "js"("CustomJS") {
-                "browser"()
+          }
+          npmRepository()
+        }
+      },
+        publishTaskName("js"),
+        "--stacktrace",
+        "-Pnpm.publish.dry=true"
+      )
+    }
+    "succeed [MPP]" {
+      gradleExec({
+        kotlinMpp {
+          "js(\"CustomJS\")" {
+            "browser"()
+          }
+          "sourceSets.apply" {
+            "named(\"CustomJSMain\")" {
+              "dependencies" {
+                "implementation"("devNpm(\"axios\", \"*\")")
+                "api"("npm(\"snabbdom\", \"*\")")
               }
-              "sourceSets" {
-                "named"("CustomJSMain") {
-                  "dependencies" {
-                    "implementation"(arg { "devNpm"("axios", "*") })
-                    "api"(arg { "npm"("snabbdom", "*") })
-                  }
-                }
-              }
-              npmRepository()
             }
-          },
-          publishTaskName("CustomJS"),
-          "--stacktrace",
-          "-Pnpm.publish.dry=true"
-        )
-      }
+          }
+          npmRepository()
+        }
+      },
+        publishTaskName("CustomJS"),
+        "--stacktrace",
+        "-Pnpm.publish.dry=true"
+      )
     }
   }
-)
+})

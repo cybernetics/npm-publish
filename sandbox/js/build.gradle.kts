@@ -17,6 +17,9 @@ kotlin {
   }
   sourceSets {
   }
+  sourceSets {
+
+  }
 }
 
 npmPublishing {

@@ -7,53 +7,49 @@ import lt.petuska.npm.publish.util.kotlinJs
 import lt.petuska.npm.publish.util.kotlinMpp
 import lt.petuska.npm.publish.util.npmRepository
 
-class AssembleTaskFTest : WordSpec(
-  {
-    "Running assembleNpmPublication" should {
-      "succeed [JS]" {
-        gradleExec(
-          {
-            kotlinJs {
-              "js" {
-                "browser"()
+class AssembleTaskFTest : WordSpec({
+  "Running assembleNpmPublication" should {
+    "succeed [JS]" {
+      gradleExec({
+        kotlinJs {
+          "js" {
+            "browser"()
+          }
+          "sourceSets.apply" {
+            "named(\"main\")" {
+              "dependencies" {
+                "implementation"("devNpm(\"axios\", \"*\")")
+                "api"("npm(\"snabbdom\", \"*\")")
               }
-              "sourceSets" {
-                "named"("main") {
-                  "dependencies" {
-                    "implementation"(arg { "devNpm"("axios", "*") })
-                    "api"(arg { "npm"("snabbdom", "*") })
-                  }
-                }
-              }
-              npmRepository()
             }
-          },
-          assembleTaskName("js"),
-          "--stacktrace"
-        )
-      }
-      "succeed [MPP]" {
-        gradleExec(
-          {
-            kotlinMpp {
-              "js" {
-                "browser"()
+          }
+          npmRepository()
+        }
+      },
+        assembleTaskName("js"),
+        "--stacktrace"
+      )
+    }
+    "succeed [MPP]" {
+      gradleExec({
+        kotlinMpp {
+          "js" {
+            "browser"()
+          }
+          "sourceSets.apply" {
+            "named(\"jsMain\")" {
+              "dependencies" {
+                "implementation"("devNpm(\"axios\", \"*\")")
+                "api"("npm(\"snabbdom\", \"*\")")
               }
-              "sourceSets" {
-                "named"("jsMain") {
-                  "dependencies" {
-                    "implementation"(arg { "devNpm"("axios", "*") })
-                    "api"(arg { "npm"("snabbdom", "*") })
-                  }
-                }
-              }
-              npmRepository()
             }
-          },
-          assembleTaskName("js"),
-          "--stacktrace"
-        )
-      }
+          }
+          npmRepository()
+        }
+      },
+        assembleTaskName("js"),
+        "--stacktrace"
+      )
     }
   }
-)
+})
