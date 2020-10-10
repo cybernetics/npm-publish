@@ -12,14 +12,14 @@ import java.io.File
 
 private fun KotlinBuilder.buildProject(kotlinPlugin: String? = null, config: KotlinBuilder.() -> Unit = {}) = apply {
   "plugins" {
-    "id"(pluginName.raw)
+    "id"(pluginName)
     kotlinPlugin?.let {
-      "kotlin"(it.raw) infix "version"(kotlinVersion.raw) infix "apply" infix true
+      "kotlin"(it) infix "version"(kotlinVersion) infix "apply" infix true
     }
   }
 
-  "version" to pluginVersion.raw
-  "group" to pluginGroup.raw chain "toUpperCase()"
+  "version" to pluginVersion
+  "group" to pluginGroup chain "toUpperCase()".fn
 
   "repositories" {
     "jcenter"()
@@ -54,10 +54,9 @@ fun KotlinBuilder.npmRepository(name: String = defaultRepoName, config: KotlinBu
   "npmPublishing" {
     "repositories" {
       "repository(\"$name\")" {
-        // +"registry = uri(\"https://registry.$name.org\")"
-        "registry" to "uri"("https://registry.$name.org".raw)
-        "authToken" to "asdhkjsdfjvhnsdrishdl".raw
-        "otp" to "gfahsdjglknamsdkpjnmasdl".raw
+        "registry" to "uri"("https://registry.$name.org")
+        "authToken" to "asdhkjsdfjvhnsdrishdl"
+        "otp" to "gfahsdjglknamsdkpjnmasdl"
         config()
       }
     }

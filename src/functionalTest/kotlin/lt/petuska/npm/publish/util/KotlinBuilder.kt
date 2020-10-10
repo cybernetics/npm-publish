@@ -16,7 +16,7 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
       KotlinBuilder {
         append(this@invoke)
         if (args.isNotEmpty()) {
-          append("(${args.joinToString(",") { arg -> "$arg" }})")
+          append("(${args.joinToString(",") { "${it.arg}" }})")
         } else if (block == null) {
           append("()")
         }
@@ -31,7 +31,7 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
   }
 
   infix fun String.to(value: Any) = this@KotlinBuilder.also {
-    +"${this@to} = $value"
+    +"${this@to} = ${value.arg}"
   }
 
   operator fun String.unaryPlus() = this@KotlinBuilder.also {
@@ -57,12 +57,12 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
 
   infix fun KotlinBuilder.infix(other: KotlinBuilder) = this@KotlinBuilder.also {
     val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-    it infix last
+    other infix last
   }
 
   infix fun Arg<*>.infix(other: KotlinBuilder) = this@KotlinBuilder.also {
     val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-    it infix last
+    other infix last
   }
 
   infix fun String.chain(other: Any) = this@KotlinBuilder.apply {
@@ -76,36 +76,22 @@ class KotlinBuilder(block: KotlinBuilder.() -> Unit = {}) {
 
   infix fun KotlinBuilder.chain(other: KotlinBuilder) = this@KotlinBuilder.also {
     val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-    it chain last
+    other chain last
   }
 
-  infix fun Arg<*>.chain(other: KotlinBuilder) = this@KotlinBuilder.also {
-    val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-    it chain last
-  }
-
-  // operator fun KotlinBuilder.plus(other: Any) = this@KotlinBuilder.also {
-  //   val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-  //   +"$last $other"
-  // }
-
-  // operator fun KotlinBuilder.plus(other: KotlinBuilder) = this@KotlinBuilder.also {
-  //   val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-  //   it + last
-  // }
-
-  // operator fun Arg<*>.plus(other: KotlinBuilder) = this@KotlinBuilder.also {
-  //   val last = it.blocks.removeAt(blocks.size - 1).toString().removeSuffix("\n")
-  //   it + last
-  // }
-
-  fun arg(block: KotlinBuilder.() -> Unit) = KotlinBuilder(block).toString().removeSuffix("\n")
+  fun arg(block: KotlinBuilder.() -> Unit) = KotlinBuilder(block).toString().removeSuffix("\n").fn
 
   override fun toString(): String {
     return blocks.joinToString("")
   }
 
+  val Any.arg get() = when (this) {
+    is Arg<*> -> this
+    is String -> Arg.RawString(this)
+    else -> Arg.Block(this)
+  }
   val String.raw get() = Arg.RawString(this)
+  val String.fn get() = Arg.Block(this)
   val String.kb get() = KBuilderBlock.Raw(this)
   val kb get() = KBuilderBlock.Block(this)
 
