@@ -79,10 +79,11 @@ kotlin {
     }
 }
 
+val pluginId = "lt.petuska.npm.publish"
 gradlePlugin {
     plugins {
         create(project.name) {
-            id = "lt.petuska.npm.publish"
+            id = pluginId
             displayName = "NPM package publishing to NPM repositories"
             description =
                 """
@@ -203,8 +204,13 @@ afterEvaluate {
                 fun buildPackageLink(prj: Project) =
                     """
           {
-            "name": "${prj.name}",
+            "name": "[Bintray] ${prj.name}",
             "url": "https://bintray.com/${System.getenv("BINTRAY_USER")!!}/${prj.group}/${prj.name}/${prj.version}",
+            "link_type": "package"
+          },
+          {
+            "name": "[GradlePluginPortal] ${prj.name}",
+            "url": "https://plugins.gradle.org/plugin/$pluginId/${prj.version}",
             "link_type": "package"
           }
                     """.trimIndent()
