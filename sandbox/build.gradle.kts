@@ -1,11 +1,11 @@
 plugins {
-  id("lt.petuska.npm.publish") version "0.1.1"
+  id("lt.petuska.npm.publish") version "0.1.2"
   kotlin("multiplatform") version "1.4.10"
 }
 
 allprojects {
   group = "lt.petuska"
-  version = "0.1.1"
+  version = "0.1.2"
 
   repositories {
     jcenter()
