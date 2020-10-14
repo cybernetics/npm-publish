@@ -1,5 +1,6 @@
 package lt.petuska.npm.publish.task
 
+import com.google.gson.Gson
 import lt.petuska.npm.publish.dsl.JsonObject
 import lt.petuska.npm.publish.dsl.NpmPublication
 import lt.petuska.npm.publish.dsl.PackageJson
@@ -51,7 +52,6 @@ open class NpmPackageAssembleTask @Inject constructor(
 
   @TaskAction
   private fun doAction() {
-    destinationDir.deleteRecursively()
     with(publication) {
       project.copy { cp ->
         readme?.let { rdm ->
@@ -70,13 +70,16 @@ open class NpmPackageAssembleTask @Inject constructor(
           npmVersion = npmVersion.replace("-SNAPSHOT", "-${System.currentTimeMillis()}")
         }
 
-        if (packageJsonFile == null) {
+        packageJsonFile?.let { packageJsonFile ->
+          cp.from("$packageJsonFile")
+          cp.rename(packageJsonFile.name, "package.json")
+        } ?: run {
           PackageJson(moduleName, npmVersion, scope) {
             if (packageJson != null) {
               packageJson!!.invoke(this@PackageJson)
             } else {
               main = this@with.main
-              npmDependencies.groupBy { dep -> dep.scope }.forEach { scope, deps ->
+              npmDependencies.groupBy { dep -> dep.scope }.forEach { (scope, deps) ->
                 val dMap = JsonObject<String> {
                   deps.forEach { dep ->
                     dep.name to dep.version
@@ -94,9 +97,28 @@ open class NpmPackageAssembleTask @Inject constructor(
               }
             }
           }.writeTo(File(destinationDir, "package.json"))
-        } else {
-          cp.from("$packageJsonFile")
-          cp.rename(packageJsonFile!!.name, "package.json")
+        }
+      }
+
+      compilation?.let { comp ->
+        try {
+          val nodeModulesDir = comp.compileKotlinTask.destinationDir.resolve("../../../node_modules")
+          val targetNodeModulesDir = destinationDir.resolve("node_modules").apply {
+            mkdirs()
+          }
+          project.copy { cp ->
+            cp.from(nodeModulesDir) { cpi ->
+              Gson().fromJson(
+                destinationDir.resolve("package.json").readText(),
+                com.google.gson.JsonObject::class.java
+              )["bundledDependencies"]?.asJsonArray?.forEach { bd ->
+                cpi.include("${bd.asString}/**")
+              }
+            }
+            cp.into(targetNodeModulesDir)
+          }
+        } catch (e: Exception) {
+          project.logger.warn("Error preparing node_modules from compilation dependencies.", e)
         }
       }
     }

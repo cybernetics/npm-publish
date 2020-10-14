@@ -34,7 +34,7 @@ npmPublishing {
   publications {
     val js by getting {
       packageJson {
-        name = "tt"
+        author to "Custom Author"
         keywords = jsonArray(
           "kotlin"
         )

@@ -134,7 +134,7 @@ class NpmPublication internal constructor(
    * DSL builder to configure NPM dependencies for this publication.
    */
   fun dependencies(config: MutableList<NpmDependency>.() -> Unit) = npmDependencies.config()
-  private fun MutableList<NpmDependency>.dependency(name: String, version: String, scope: NpmDependency.Scope) = NpmDependency(project, name, version, scope, false).also {
+  fun MutableList<NpmDependency>.dependency(name: String, version: String, scope: NpmDependency.Scope) = NpmDependency(project, name, version, scope, false).also {
     add(it)
   }
 
