@@ -11,16 +11,10 @@ repositories {
 
 kotlin {
   js { browser() }
-  js("jsIR", IR) {
-    browser()
-    useCommonJs()
-    binaries.executable()
-  }
 
   sourceSets {
     val jsMain by getting {
       dependencies {
-        implementation("io.ktor:ktor-client-core:1.4.1")
         implementation(devNpm("axios", "*"))
         api(npm("snabbdom", "*"))
       }
@@ -32,23 +26,15 @@ npmPublishing {
   organization = group as String
   repositories {
     repository("GitLab") {
-      access = PUBLIC
       registry = uri("https://gitlab.com/api/v4/projects/${System.getenv("CI_PROJECT_ID")?.trim()}/packages/npm")
       authToken = System.getenv("PRIVATE_TOKEN")?.trim() ?: ""
     }
   }
 
   publications {
-    val jsIR by getting {
-      moduleName = "mpp-IR"
-      packageJson {
-        bundledDependencies = mutableSetOf("kotlin-test")
-      }
-    }
     val js by getting {
-      moduleName = "mpp-Legacy"
       packageJson {
-        author to "Custom Author"
+        name = "tt"
         keywords = jsonArray(
           "kotlin"
         )
@@ -57,9 +43,6 @@ npmPublishing {
         }
         "customField" to jsonObject {
           "customValues" to jsonArray(1, 2, 3)
-        }
-        bundledDependencies("kotlin-test") {
-
         }
       }
     }

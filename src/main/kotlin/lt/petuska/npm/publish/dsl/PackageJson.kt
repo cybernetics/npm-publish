@@ -1,12 +1,9 @@
 package lt.petuska.npm.publish.dsl
 
 import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
-import lt.petuska.npm.publish.util.npmFullName
 import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 import java.io.File
 import java.io.Serializable
-import kotlin.reflect.KProperty
 
 /**
  * Utility class for building Json Trees
@@ -24,11 +21,6 @@ open class JsonObject<T> : MutableMap<String, T?> by mutableMapOf(), Serializabl
   fun <V> jsonArray(vararg elements: V) = mutableListOf(*elements)
 
   /**
-   * Creates a Json Set
-   */
-  fun <V> jsonSet(vararg elements: V) = mutableSetOf(*elements)
-
-  /**
    * Assigns a json value as `[this] = [value]`
    */
   infix fun String.to(value: T?) {
@@ -40,8 +32,18 @@ open class JsonObject<T> : MutableMap<String, T?> by mutableMapOf(), Serializabl
    */
   override fun toString(): String = gson.toJson(this)
 
+  /**
+   * Writes the current state of the object into a file as json string
+   */
+  fun writeTo(packageJsonFile: File) {
+    packageJsonFile.ensureParentDirsCreated()
+    packageJsonFile.writer().use {
+      gson.toJson(this, it)
+    }
+  }
+
   companion object {
-    internal val gson = GsonBuilder()
+    private val gson = GsonBuilder()
       .setPrettyPrinting()
       .create()
 
@@ -58,37 +60,18 @@ open class JsonObject<T> : MutableMap<String, T?> by mutableMapOf(), Serializabl
 }
 
 /**
- * Writes the current state of the object into a file as json string
- */
-fun <T : JsonObject<*>> T.writeTo(packageJsonFile: File) = this.also {
-  packageJsonFile.ensureParentDirsCreated()
-  packageJsonFile.writer().use {
-    JsonObject.gson.toJson(this, it)
-  }
-}
-
-operator fun <R> JsonObject<Any>.getValue(thisRef: JsonObject<Any>, property: KProperty<*>): R? {
-  @Suppress("UNCHECKED_CAST")
-  return thisRef[property.name] as? R
-}
-
-operator fun <R> JsonObject<Any>.setValue(thisRef: JsonObject<Any>, property: KProperty<*>, value: R?) {
-  thisRef[property.name] = value
-}
-
-/**
  * A class representing [package.json](https://docs.npmjs.com/files/package.json) schema. Custom fields can be added as regular map entries.
  */
 class PackageJson(name: String, version: String, scope: String? = null, config: PackageJson.() -> Unit = {}) : JsonObject<Any>() {
   /**
    * [name](https://docs.npmjs.com/files/package.json#name)
    */
-  var name: String? by this
+  var name: String by this
 
   /**
    * [version](https://docs.npmjs.com/files/package.json#version)
    */
-  var version: String? by this
+  var version: String by this
 
   /**
    * [description](https://docs.npmjs.com/files/package.json#description-1)
@@ -113,12 +96,12 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   /**
    * [bugs](https://docs.npmjs.com/files/package.json#bugs)
    */
-  fun bugs(config: Bugs.() -> Unit = {}) = (bugs ?: Bugs()).apply(config).also { bugs = it }
+  fun bugs(config: Bugs.() -> Unit = {}) = Bugs(config).also { bugs = it }
 
   /**
-   * [license](https://docs.npmjs.com/files/package.json#license)
+   * [licence](https://docs.npmjs.com/files/package.json#license)
    */
-  var license: String? by this
+  var licence: String? by this
 
   /**
    * [author](https://docs.npmjs.com/files/package.json#people-fields-author-contributors)
@@ -128,7 +111,7 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   /**
    * [author](https://docs.npmjs.com/files/package.json#people-fields-author-contributors)
    */
-  fun author(config: Person.() -> Unit = {}) = (author ?: Person()).apply(config).also { author = it }
+  fun author(config: Person.() -> Unit = {}) = Person(config).also { author = it }
 
   /**
    * [contributors](https://docs.npmjs.com/files/package.json#people-fields-author-contributors)
@@ -149,11 +132,6 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
    * [main](https://docs.npmjs.com/files/package.json#main)
    */
   var main: String? by this
-
-  /**
-   * [types](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html)
-   */
-  var types: String? by this
 
   /**
    * [browser](https://docs.npmjs.com/files/package.json#browser)
@@ -178,7 +156,7 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   /**
    * [directories](https://docs.npmjs.com/files/package.json#directories)
    */
-  fun directories(config: Directories.() -> Unit = {}) = (directories ?: Directories()).apply(config).also { directories = it }
+  fun directories(config: Directories.() -> Unit = {}) = Directories(config).also { directories = it }
 
   /**
    * [repository](https://docs.npmjs.com/files/package.json#repository)
@@ -188,7 +166,7 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   /**
    * [repository](https://docs.npmjs.com/files/package.json#repository)
    */
-  fun repository(config: Repository.() -> Unit = {}) = (repository ?: Repository()).apply(config).also { repository = it }
+  fun repository(config: Repository.() -> Unit = {}) = Repository(config).also { repository = it }
 
   /**
    * [scripts](https://docs.npmjs.com/files/package.json#scripts)
@@ -206,19 +184,9 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   var dependencies: JsonObject<String>? by this
 
   /**
-   * [dependencies](https://docs.npmjs.com/files/package.json#dependencies)
-   */
-  fun dependencies(config: JsonObject<String>.() -> Unit = {}) = (dependencies ?: JsonObject()).apply(config).also { dependencies = it }
-
-  /**
    * [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies)
    */
   var devDependencies: JsonObject<String>? by this
-
-  /**
-   * [devDependencies](https://docs.npmjs.com/files/package.json#devdependencies)
-   */
-  fun devDependencies(config: JsonObject<String>.() -> Unit = {}) = (devDependencies ?: JsonObject()).apply(config).also { devDependencies = it }
 
   /**
    * [peerDependencies](https://docs.npmjs.com/files/package.json#peerdependencies)
@@ -226,45 +194,14 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   var peerDependencies: JsonObject<String>? by this
 
   /**
-   * [peerDependencies](https://docs.npmjs.com/files/package.json#peerdependencies)
+   * [bundledDependencies](https://docs.npmjs.com/files/package.json#bundleddependencies)
    */
-  fun peerDependencies(config: JsonObject<String>.() -> Unit = {}) = (peerDependencies ?: JsonObject()).apply(config).also { peerDependencies = it }
+  var bundledDependencies: JsonObject<String>? by this
 
   /**
    * [optionalDependencies](https://docs.npmjs.com/files/package.json#optionaldependencies)
    */
   var optionalDependencies: JsonObject<String>? by this
-
-  /**
-   * [optionalDependencies](https://docs.npmjs.com/files/package.json#optionaldependencies)
-   */
-  fun optionalDependencies(config: JsonObject<String>.() -> Unit = {}) = (optionalDependencies ?: JsonObject()).apply(config).also { optionalDependencies = it }
-
-  /**
-   * [bundledDependencies](https://docs.npmjs.com/files/package.json#bundleddependencies)
-   * Top priority if set, disregards all other configurations
-   */
-  var bundledDependencies: MutableSet<String>? by this
-
-  @field:Expose(serialize = false, deserialize = false)
-  internal var bundledDependenciesSpec: BundledDependenciesSpec? = null
-
-  /**
-   * Appends bundled dependencies configuration.
-   * Ignored if [bundledDependencies] property is set
-   * For auto-generated publications, kotlin-test* dependencies are excluded by default
-   *
-   * @param mustBundle a list of dependencies to bundle regardless of the config
-   * @param config include/exclude spec to filter out bundled dependencies
-   */
-  fun bundledDependencies(vararg mustBundle: String, config: BundledDependenciesSpec.() -> Unit) {
-    val target = bundledDependenciesSpec ?: BundledDependenciesSpec()
-    target.apply(config)
-    target.apply {
-      mustBundle.forEach { +it }
-    }
-    bundledDependenciesSpec = target
-  }
 
   /**
    * [engines](https://docs.npmjs.com/files/package.json#engines)
@@ -294,55 +231,12 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   /**
    * [publishConfig](https://docs.npmjs.com/files/package.json#publishconfig)
    */
-  fun publishConfig(config: PublishConfig.() -> Unit = {}) = (publishConfig ?: PublishConfig()).apply(config).also { publishConfig = it }
+  fun publishConfig(config: PublishConfig.() -> Unit = {}) = PublishConfig(config).also { publishConfig = it }
 
   init {
-    this.name = npmFullName(name, scope)
+    this.name = "${scope?.let { "@$it/" } ?: ""}$name"
     this.version = version
     this.apply(config)
-  }
-
-  inner class BundledDependenciesSpec(config: (BundledDependenciesSpec.() -> Unit)? = null) {
-    private val specs: MutableList<(MutableSet<String>) -> Unit> = mutableListOf()
-
-    init {
-      config?.invoke(this)
-    }
-
-    /**
-     * Includes a given dependency
-     */
-    operator fun String.unaryPlus() {
-      specs.add { it.add(this) }
-    }
-
-    /**
-     * Excludes a given dependency
-     */
-    operator fun String.unaryMinus() {
-      specs.add { it.remove(this) }
-    }
-
-    /**
-     * Includes a given dependencies by regex. Should not be used with regex exclusion.
-     */
-    operator fun Regex.unaryPlus() {
-      specs.add { it.removeIf { dep -> !matches(dep) } }
-    }
-
-    /**
-     * Excludes given dependencies by regex. Should not be used with regex inclusion.
-     */
-    operator fun Regex.unaryMinus() {
-      specs.add { it.removeIf { dep -> matches(dep) } }
-    }
-
-    /**
-     * Applies this spec to the given dependencies set.
-     */
-    fun applyTo(set: MutableSet<String>): MutableSet<String> = set.apply {
-      specs.forEach { it(this) }
-    }
   }
 
   /**

@@ -1,11 +1,10 @@
 package lt.petuska.npm.publish.task
 
-import lt.petuska.npm.publish.delegate.gradleNullableProperty
+import lt.petuska.npm.publish.util.gradleNullableProperty
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
-import org.gradle.process.ExecSpec
 import java.io.File
 import javax.inject.Inject
 
@@ -61,15 +60,4 @@ abstract class NpmExecTask @Inject constructor(
         .resolve("npm-cli.js")
     }
   }
-
-  fun nodeExec(args: Collection<Any?>, config: ExecSpec.() -> Unit = {}) = project.exec {
-    val cmd = listOfNotNull(
-      node,
-      *args.toTypedArray()
-    ).toTypedArray()
-    it.commandLine(*cmd)
-    it.config()
-  }
-
-  fun npmExec(args: Collection<Any?>, config: ExecSpec.() -> Unit = {}) = nodeExec(listOf(npm) + args, config)
 }

@@ -7,4 +7,3 @@ build
 local.properties
 apiDiff.api
 public/
-node_modules

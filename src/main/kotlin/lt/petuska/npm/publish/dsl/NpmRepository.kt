@@ -1,58 +1,57 @@
 package lt.petuska.npm.publish.dsl
 
-import lt.petuska.npm.publish.delegate.fallbackDelegate
-import lt.petuska.npm.publish.delegate.or
-import lt.petuska.npm.publish.delegate.propertyDelegate
-import lt.petuska.npm.publish.npmPublishing
-import lt.petuska.npm.publish.util.notFalse
+import lt.petuska.npm.publish.dsl.NpmPublishExtension.Companion.AUTH_TOKEN_PROP
+import lt.petuska.npm.publish.dsl.NpmPublishExtension.Companion.OTP_PROP
+import lt.petuska.npm.publish.util.fallbackDelegate
+import lt.petuska.npm.publish.util.gradleNullableProperty
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+import org.gradle.util.GUtil
 import java.net.URI
 
 /**
  * Npm repository (registry) configuration container
  */
 class NpmRepository internal constructor(
-  /**
-   * Repository name.
-   */
-  val name: String,
-  private val project: Project,
+  name: String,
+  project: Project,
   npmExtension: NpmPublishExtension
 ) {
-  private val propGroup = "$PROP_PREFIX.$name"
+  /**
+   * Repository name. Always in lowerCamelCase.
+   */
+  val name: String = GUtil.toLowerCamelCase(name)
 
   /**
    * Repository access.
    */
-  var access: NpmAccess by project.propertyDelegate(propGroup) { NpmAccess.fromString(it) } or npmExtension.fallbackDelegate(NpmPublishExtension::access)
+  @get:Input
+  var access by npmExtension.fallbackDelegate(NpmPublishExtension::access)
 
   /**
    * NPM Registry uri to publish packages to. Should include schema domain and path if required
    */
-  var registry: URI? by project.propertyDelegate(propGroup) { URI(it) }
+  @get:Input
+  var registry by project.gradleNullableProperty<URI>()
 
   /**
    * Optional OTP to use when authenticating with the registry.
    */
-  var otp: String? by project.propertyDelegate(propGroup) { it }
+  @get:Input
+  @get:Optional
+  var otp by project.gradleNullableProperty<String>(project.properties["$OTP_PROP.$name"] as String?)
 
   /**
    * Auth token to use when authenticating with the registry
    */
-  var authToken: String? by project.propertyDelegate(propGroup) { it }
-
-  /**
-   * Overrides [NpmPublishExtension.dry] option for this repository
-   */
-  var dry: Boolean by project.propertyDelegate(propGroup) { it.notFalse() } or npmExtension.fallbackDelegate(NpmPublishExtension::dry)
+  @get:Input
+  @get:Optional
+  var authToken by project.gradleNullableProperty<String>(project.properties["$AUTH_TOKEN_PROP.$name"] as String?)
 
   internal fun validate(): NpmRepository? {
     return takeIf {
-      registry != null && (authToken != null || project.npmPublishing.dry)
+      registry != null && authToken != null
     }
-  }
-
-  companion object {
-    const val PROP_PREFIX = "repository"
   }
 }
