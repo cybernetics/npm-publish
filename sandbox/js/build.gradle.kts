@@ -16,7 +16,6 @@ kotlin {
     implementation("io.ktor:ktor-client-core:1.4.1")
   }
   sourceSets {
-
   }
 }
 
@@ -26,10 +25,7 @@ npmPublishing {
   publications {
     val js by getting {
       packageJson {
-        dependencies {
-          "ktor-ktor-client-core-jsLegacy" to "1.4.1"
-        }
-        bundledDependencies = jsonArray("ktor-ktor-client-core-jsLegacy")
+        author { name = "Martynas Petuška" }
       }
     }
   }

@@ -55,6 +55,7 @@ public final class lt/petuska/npm/publish/dsl/NpmPublication {
 	public final fun dependencies (Lkotlin/jvm/functions/Function1;)V
 	public final fun dependency (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Lorg/jetbrains/kotlin/gradle/targets/js/npm/NpmDependency$Scope;)Lorg/jetbrains/kotlin/gradle/targets/js/npm/NpmDependency;
 	public final fun files (Lkotlin/jvm/functions/Function2;)V
+	public final fun getBundleKotlinDependencies ()Z
 	public final fun getDestinationDir ()Ljava/io/File;
 	public final fun getMain ()Ljava/lang/String;
 	public final fun getModuleName ()Ljava/lang/String;
@@ -71,6 +72,7 @@ public final class lt/petuska/npm/publish/dsl/NpmPublication {
 	public final fun npmOptional (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/kotlin/gradle/targets/js/npm/NpmDependency;
 	public final fun npmPeer (Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/kotlin/gradle/targets/js/npm/NpmDependency;
 	public final fun packageJson (Lkotlin/jvm/functions/Function1;)V
+	public final fun setBundleKotlinDependencies (Z)V
 	public final fun setDestinationDir (Ljava/io/File;)V
 	public final fun setMain (Ljava/lang/String;)V
 	public final fun setModuleName (Ljava/lang/String;)V
@@ -90,6 +92,7 @@ public class lt/petuska/npm/publish/dsl/NpmPublishExtension {
 	public static final field OTP_PROP Ljava/lang/String;
 	public fun <init> (Lorg/gradle/api/Project;)V
 	public final fun getAccess ()Llt/petuska/npm/publish/dsl/NpmAccess;
+	public final fun getBundleKotlinDependencies ()Z
 	public final fun getOrganization ()Ljava/lang/String;
 	public final fun getReadme ()Ljava/io/File;
 	public final fun publication (Lorg/gradle/api/NamedDomainObjectContainer;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Llt/petuska/npm/publish/dsl/NpmPublication;
@@ -99,6 +102,7 @@ public class lt/petuska/npm/publish/dsl/NpmPublishExtension {
 	public final fun repositories (Lkotlin/jvm/functions/Function1;)V
 	public final fun repository (Lorg/gradle/api/NamedDomainObjectContainer;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Llt/petuska/npm/publish/dsl/NpmRepository;
 	public final fun setAccess (Llt/petuska/npm/publish/dsl/NpmAccess;)V
+	public final fun setBundleKotlinDependencies (Z)V
 	public final fun setOrganization (Ljava/lang/String;)V
 	public final fun setReadme (Ljava/io/File;)V
 }

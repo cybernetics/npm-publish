@@ -11,9 +11,11 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
 import java.io.File
 import javax.inject.Inject
+import com.google.gson.JsonObject as GsonObject
 
 /**
  * A task to assemble all required files for a given [NpmPublication].
@@ -92,35 +94,51 @@ open class NpmPackageAssembleTask @Inject constructor(
                   NpmDependency.Scope.PEER -> this.peerDependencies = dMap
                 }
               }
+
               packageJsonSpecs.forEach {
                 it()
+              }
+
+              if (bundleKotlinDependencies) {
+                compilation?.bundleKotlinDependencies()?.let { kotlinDependencies ->
+                  dependencies {
+                    kotlinDependencies.forEach { n, v ->
+                      n to v
+                    }
+                  }
+                  val bd = bundledDependencies ?: mutableListOf()
+                  bd.addAll(kotlinDependencies.keys)
+                  bundledDependencies = bd
+                }
               }
             }
           }.writeTo(File(destinationDir, "package.json"))
         }
       }
+    }
+  }
 
-      compilation?.let { comp ->
-        try {
-          val nodeModulesDir = comp.compileKotlinTask.destinationDir.resolve("../../../node_modules")
-          val targetNodeModulesDir = destinationDir.resolve("node_modules").apply {
-            mkdirs()
-          }
-          project.copy { cp ->
-            cp.from(nodeModulesDir) { cpi ->
-              Gson().fromJson(
-                destinationDir.resolve("package.json").readText(),
-                com.google.gson.JsonObject::class.java
-              )["bundledDependencies"]?.asJsonArray?.forEach { bd ->
-                cpi.include("${bd.asString}/**")
-              }
-            }
-            cp.into(targetNodeModulesDir)
-          }
-        } catch (e: Exception) {
-          project.logger.warn("Error preparing node_modules from compilation dependencies.", e)
-        }
+  private fun KotlinJsCompilation.bundleKotlinDependencies(): Map<String, String>? = try {
+    val gson = Gson()
+    val rawPJS = gson.fromJson(compileKotlinTask.destinationDir.resolve("../package.json").readText(), GsonObject::class.java)
+    val kotlinDeps = rawPJS["dependencies"]?.asJsonObject?.entrySet()
+      ?.map { it.key to it.value.asString }
+      ?.filter { it.second.run { startsWith("file:") && contains("packages_imported") } }
+      ?.map { (key, value) -> key to File(value.removePrefix("file:")) }
+
+    val targetNodeModulesDir = destinationDir.resolve("node_modules").apply {
+      mkdirs()
+    }
+
+    kotlinDeps?.forEach { (name, dir) ->
+      project.copy { cp ->
+        cp.into(targetNodeModulesDir.resolve(name))
+        cp.from(dir)
       }
     }
+    kotlinDeps?.map { (n, v) -> n to v.name }?.toMap()
+  } catch (e: Exception) {
+    project.logger.warn("Error preparing node_modules from compilation dependencies.", e)
+    null
   }
 }
