@@ -65,7 +65,6 @@ class NpmPublishPlugin : Plugin<Project> {
           publication(targetName) {
             this.compilation = compilation
             this.main = compilation.compileKotlinTask.outputFile.name
-            this.bundleKotlinDependencies = true
             dependencies {
               addAll(deps)
             }

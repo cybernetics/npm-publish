@@ -33,7 +33,7 @@ open class NpmPublishExtension(private val project: Project) {
    * Sets global default flag
    * @see [NpmPublication.bundleKotlinDependencies]
    */
-  var bundleKotlinDependencies by project.gradleProperty(false)
+  var bundleKotlinDependencies by project.gradleProperty(true)
 
   internal val repoConfigs = mutableListOf<Closure<Unit>>()
   internal val repositories: NpmRepositoryContainer = project.container(NpmRepository::class.java) { name ->

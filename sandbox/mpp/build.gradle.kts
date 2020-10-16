@@ -15,6 +15,7 @@ kotlin {
   sourceSets {
     val jsMain by getting {
       dependencies {
+        implementation("io.ktor:ktor-client-core:1.4.1")
         implementation(devNpm("axios", "*"))
         api(npm("snabbdom", "*"))
       }
