@@ -1,5 +1,7 @@
 package lt.petuska.npm.publish.util
 
-fun String.notFalse() = !equals("false", true)
+import lt.petuska.npm.publish.dsl.NpmPublishExtension
+import org.gradle.api.Project
 
-fun npmFullName(name: String, scope: String?) = "${scope?.let { "@${it.trim()}/" } ?: ""}${name.trim()}"
+internal val Project.isDryRun: Boolean
+  get() = project.hasProperty(NpmPublishExtension.DRY_RUN_PROP) && (project.properties[NpmPublishExtension.DRY_RUN_PROP] as String?)?.toBoolean() != false

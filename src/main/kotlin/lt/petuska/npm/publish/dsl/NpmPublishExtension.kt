@@ -113,11 +113,14 @@ open class NpmPublishExtension(private val project: Project) {
   }
 
   /**
-   * DSL exposing [NpmPublication] creation and configuration
+   * DSL exposing [NpmPublication] creation and configuration.
+   * Will look for existing publication with the same name or create a new one before applying the configuration
    */
   fun NpmPublicationContainer.publication(name: String, config: NpmPublication.() -> Unit): NpmPublication {
-    val pub = NpmPublication(name, this@NpmPublishExtension.project, this@NpmPublishExtension).apply(config)
-    add(pub)
+    val pub = findByName(name) ?: NpmPublication(name, this@NpmPublishExtension.project, this@NpmPublishExtension).also {
+      add(it)
+    }
+    pub.apply(config)
     return pub
   }
 

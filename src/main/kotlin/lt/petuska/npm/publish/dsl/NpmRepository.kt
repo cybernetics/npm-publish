@@ -4,6 +4,7 @@ import lt.petuska.npm.publish.dsl.NpmPublishExtension.Companion.AUTH_TOKEN_PROP
 import lt.petuska.npm.publish.dsl.NpmPublishExtension.Companion.OTP_PROP
 import lt.petuska.npm.publish.util.fallbackDelegate
 import lt.petuska.npm.publish.util.gradleNullableProperty
+import lt.petuska.npm.publish.util.isDryRun
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -15,7 +16,7 @@ import java.net.URI
  */
 class NpmRepository internal constructor(
   name: String,
-  project: Project,
+  private val project: Project,
   npmExtension: NpmPublishExtension
 ) {
   /**
@@ -51,7 +52,7 @@ class NpmRepository internal constructor(
 
   internal fun validate(): NpmRepository? {
     return takeIf {
-      registry != null && authToken != null
+      registry != null && (authToken != null || project.isDryRun)
     }
   }
 }

@@ -1,10 +1,10 @@
 package lt.petuska.npm.publish.task
 
 import lt.petuska.npm.publish.dsl.NpmPublication
-import lt.petuska.npm.publish.dsl.NpmPublishExtension
 import lt.petuska.npm.publish.dsl.NpmRepository
 import lt.petuska.npm.publish.util.fallbackDelegate
 import lt.petuska.npm.publish.util.gradleProperty
+import lt.petuska.npm.publish.util.isDryRun
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
@@ -61,10 +61,7 @@ open class NpmPublishTask @Inject constructor(
    * Defaults to `npm.publish.dry` project property if set or `false` otherwise.
    */
   @get:Input
-  var dry by project.gradleProperty(
-    (project.properties[NpmPublishExtension.DRY_RUN_PROP] as String?)?.toBoolean()
-      ?: false
-  )
+  var dry by project.gradleProperty(project.isDryRun)
 
   // /**
   //  * Main configuration of the repository to publish to.
