@@ -11,7 +11,7 @@ repositories {
 
 kotlin {
   js { browser() }
-  js("exe", IR) {
+  js("jsIR", IR) {
     browser()
     useCommonJs()
     binaries.executable()
@@ -38,7 +38,11 @@ npmPublishing {
   }
 
   publications {
+    val jsIR by getting {
+      moduleName = "mpp-IR"
+    }
     val js by getting {
+      moduleName = "mpp-Legacy"
       packageJson {
         author to "Custom Author"
         keywords = jsonArray(

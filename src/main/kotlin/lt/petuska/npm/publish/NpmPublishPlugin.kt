@@ -115,6 +115,7 @@ class NpmPublishPlugin : Plugin<Project> {
         val assembleTaskName = "assemble${upperName}NpmPublication"
         val assemblePackageTask = tasks.findByName(assembleTaskName) as NpmPackageAssembleTask?
           ?: tasks.create(assembleTaskName, NpmPackageAssembleTask::class.java, pub).also {
+            it.onlyIf { pub.compileKotlinTask?.didWork ?: true }
             processResourcesTask?.let { o ->
               it.inputs.files(o.outputs)
             }
