@@ -147,7 +147,6 @@ publishing {
                 credentials(HttpHeaderCredentials::class) {
                     val jobToken = System.getenv("CI_JOB_TOKEN")
                     if (jobToken != null) {
-                        // GitLab CI
                         name = "Job-Token"
                         value = jobToken
                     } else {
