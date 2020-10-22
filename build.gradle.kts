@@ -186,7 +186,7 @@ afterEvaluate {
                     "Built-By" to System.getProperty("user.name"),
                     "Build-Jdk" to System.getProperty("java.version"),
                     "Implementation-Version" to project.version,
-                    "Created-By" to org.gradle.util.GradleVersion.current(),
+                    "Created-By" to "Gradle v${org.gradle.util.GradleVersion.current()}",
                     "Created-From" to gitCommitHash
                 )
             }
