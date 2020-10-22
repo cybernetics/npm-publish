@@ -164,6 +164,7 @@ public final class lt/petuska/npm/publish/dsl/PackageJson : lt/petuska/npm/publi
 	public final fun getPublishConfig ()Llt/petuska/npm/publish/dsl/PackageJson$PublishConfig;
 	public final fun getRepository ()Llt/petuska/npm/publish/dsl/PackageJson$Repository;
 	public final fun getScripts ()Llt/petuska/npm/publish/dsl/JsonObject;
+	public final fun getTypes ()Ljava/lang/String;
 	public final fun getVersion ()Ljava/lang/String;
 	public final fun optionalDependencies (Lkotlin/jvm/functions/Function1;)Llt/petuska/npm/publish/dsl/JsonObject;
 	public static synthetic fun optionalDependencies$default (Llt/petuska/npm/publish/dsl/PackageJson;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Llt/petuska/npm/publish/dsl/JsonObject;
@@ -200,6 +201,7 @@ public final class lt/petuska/npm/publish/dsl/PackageJson : lt/petuska/npm/publi
 	public final fun setPublishConfig (Llt/petuska/npm/publish/dsl/PackageJson$PublishConfig;)V
 	public final fun setRepository (Llt/petuska/npm/publish/dsl/PackageJson$Repository;)V
 	public final fun setScripts (Llt/petuska/npm/publish/dsl/JsonObject;)V
+	public final fun setTypes (Ljava/lang/String;)V
 	public final fun setVersion (Ljava/lang/String;)V
 }
 

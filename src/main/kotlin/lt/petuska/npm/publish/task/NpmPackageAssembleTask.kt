@@ -11,8 +11,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
+import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import java.io.File
 import javax.inject.Inject
 import com.google.gson.JsonObject as GsonObject
@@ -81,6 +81,14 @@ open class NpmPackageAssembleTask @Inject constructor(
               packageJson!!.invoke(this@PackageJson)
             } else {
               main = this@with.main
+              compileKotlinTask?.outputFile?.let {
+                val kDir = it.parentFile
+                kDir.resolve("${it.nameWithoutExtension}.d.ts").let { dtsFile ->
+                  if (dtsFile.exists()) {
+                    types = "${dtsFile.relativeTo(kDir)}"
+                  }
+                }
+              }
               npmDependencies.groupBy { dep -> dep.scope }.forEach { (scope, deps) ->
                 val dMap = JsonObject<String> {
                   deps.forEach { dep ->
@@ -100,7 +108,7 @@ open class NpmPackageAssembleTask @Inject constructor(
               }
 
               if (bundleKotlinDependencies) {
-                compilation?.bundleKotlinDependencies()?.let { kotlinDependencies ->
+                compileKotlinTask?.bundleKotlinDependencies()?.let { kotlinDependencies ->
                   dependencies {
                     kotlinDependencies.forEach { n, v ->
                       n to v
@@ -118,9 +126,9 @@ open class NpmPackageAssembleTask @Inject constructor(
     }
   }
 
-  private fun KotlinJsCompilation.bundleKotlinDependencies(): Map<String, String>? = try {
+  private fun Kotlin2JsCompile.bundleKotlinDependencies(): Map<String, String>? = try {
     val gson = Gson()
-    val rawPJS = gson.fromJson(compileKotlinTask.destinationDir.resolve("../package.json").readText(), GsonObject::class.java)
+    val rawPJS = gson.fromJson(destinationDir.resolve("../package.json").readText(), GsonObject::class.java)
     val kotlinDeps = rawPJS["dependencies"]?.asJsonObject?.entrySet()
       ?.map { it.key to it.value.asString }
       ?.filter { it.second.run { startsWith("file:") && contains("packages_imported") } }

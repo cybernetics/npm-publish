@@ -13,7 +13,10 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.util.GUtil
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmDependency
+import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import java.io.File
 
 /**
@@ -29,6 +32,7 @@ class NpmPublication internal constructor(
   @get:Internal
   val npmDependencies: MutableList<NpmDependency> = mutableListOf()
 ) {
+
   @get:Input
   internal val npmDependenciesStr: List<String>
     get() = npmDependencies.map { "$it" }
@@ -100,8 +104,20 @@ class NpmPublication internal constructor(
 
   @get:Internal
   internal var compilation by project.gradleNullableProperty<KotlinJsCompilation>()
+
+  @get:Internal
+  internal val compileKotlinTask: Kotlin2JsCompile? get() = compilation?.let {
+    if (it is KotlinJsIrCompilation) {
+      val exeTaskName = "compileProductionExecutable${it.compileKotlinTaskName.removePrefix("compile")}"
+      project.tasks.findByName(exeTaskName) as KotlinJsIrLink?
+    } else {
+      it.compileKotlinTask
+    }
+  }
+
   @get:Internal
   internal var fileSpecs = mutableListOf<CopySpec.(File) -> Unit>()
+
   @get:Internal
   internal var packageJsonSpecs = mutableListOf<PackageJson.() -> Unit>()
 
@@ -149,14 +165,17 @@ class NpmPublication internal constructor(
    * Adds a [regular](https://docs.npmjs.com/files/package.json#dependencies) npm dependency.
    */
   fun MutableList<NpmDependency>.npm(name: String, version: String) = dependency(name, version, NpmDependency.Scope.NORMAL)
+
   /**
    * Adds a [dev](https://docs.npmjs.com/files/package.json#devdependencies) npm dependency.
    */
   fun MutableList<NpmDependency>.npmDev(name: String, version: String) = dependency(name, version, NpmDependency.Scope.DEV)
+
   /**
    * Adds an [optional](https://docs.npmjs.com/files/package.json#optionaldependencies) npm dependency.
    */
   fun MutableList<NpmDependency>.npmOptional(name: String, version: String) = dependency(name, version, NpmDependency.Scope.OPTIONAL)
+
   /**
    * Adds a [peer](https://docs.npmjs.com/files/package.json#peerdependencies) npm dependency.
    */

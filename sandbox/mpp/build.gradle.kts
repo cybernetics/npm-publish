@@ -11,6 +11,11 @@ repositories {
 
 kotlin {
   js { browser() }
+  js("exe", IR) {
+    browser()
+    useCommonJs()
+    binaries.executable()
+  }
 
   sourceSets {
     val jsMain by getting {

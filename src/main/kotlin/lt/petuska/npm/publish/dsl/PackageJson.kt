@@ -144,6 +144,11 @@ class PackageJson(name: String, version: String, scope: String? = null, config: 
   var main: String? by this
 
   /**
+   * [types](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html)
+   */
+  var types: String? by this
+
+  /**
    * [browser](https://docs.npmjs.com/files/package.json#browser)
    */
   var browser: String? by this
