@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "lt.petuska"
-version = "1.0.0"
+version = "1.0.1"
 
 buildscript {
     dependencies {
@@ -177,7 +177,7 @@ publishing {
 afterEvaluate {
     tasks {
         withType<Wrapper> {
-            gradleVersion = "6.6.1"
+            gradleVersion = "6.7"
             distributionType = Wrapper.DistributionType.ALL
         }
         withType<Jar> {
