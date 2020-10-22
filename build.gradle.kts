@@ -98,7 +98,7 @@ gradlePlugin {
 
 pluginBundle {
     website = "http://${project.group}.gitlab.io/${project.name}"
-    vcsUrl = "https://gitlab.com/${project.group}/${project.name}"
+    vcsUrl = "https://gitlab.com/${project.group}/${project.name}.git"
     tags = listOf("npm", "publishing", "kotlin", "node")
 }
 
