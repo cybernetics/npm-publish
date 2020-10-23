@@ -34,6 +34,8 @@ When kotlin JS/MPP plugin is applied, this plugin will automatically create a pu
 
 #### DSL
 ```kotlin
+import lt.petuska.npm.publish.dsl.NpmAccess
+
 npmPublishing {
   readme = file("README.MD") // (optional) Default readme file
   organization = "my.org" // (Optional) Used as default scope for all publications
