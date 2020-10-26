@@ -161,8 +161,8 @@ Repository:
 ## Dependency Resolution
 Npm dependencies detected/declared for each publication are resolved into relevant 
 package.json dependency block by this priority order by their name (descending priority):
-1. Peer
-2. Optional
+1. Optional
+2. Peer
 3. Dev
 4. Normal
 
