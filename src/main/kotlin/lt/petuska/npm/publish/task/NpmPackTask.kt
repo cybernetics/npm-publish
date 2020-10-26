@@ -4,7 +4,9 @@ import lt.petuska.npm.publish.delegate.fallbackDelegate
 import lt.petuska.npm.publish.dsl.NpmPublication
 import lt.petuska.npm.publish.dsl.NpmPublishExtension
 import lt.petuska.npm.publish.npmPublishing
-import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.inject.Inject
@@ -23,20 +25,20 @@ open class NpmPackTask @Inject constructor(
    * The directory where the assembled and ready-to-publish package is.
    * Defaults to [NpmPublication.destinationDir]
    */
-  @get:Internal
+  @get:InputDirectory
   var packageDir: File by publication.fallbackDelegate(NpmPublication::destinationDir)
 
   /**
    * Output directory to pack the publication to.
    * Defaults to [NpmPackTask.packageDir] parent
    */
-  @get:Internal
+  @get:OutputDirectory
   var destinationDir: File by fallbackDelegate<NpmPackTask, File, File>(NpmPackTask::packageDir) { parentFile }
 
   /**
    * See Also: [lt.petuska.npm.publish.dsl.NpmPublishExtension.dry]
    */
-  @get:Internal
+  @get:Input
   var dry by project.npmPublishing.fallbackDelegate(NpmPublishExtension::dry)
 
   init {
@@ -46,14 +48,16 @@ open class NpmPackTask @Inject constructor(
 
   @TaskAction
   private fun doAction() {
-    npmExec(
-      listOf(
+    project.exec {
+      it.workingDir = destinationDir
+      val cmd = listOfNotNull(
+        node,
+        npm,
         "pack",
         packageDir,
         if (dry) "--dry-run" else null
-      )
-    ) {
-      workingDir = destinationDir
+      ).toTypedArray()
+      it.commandLine(*cmd)
     }
   }
 }
