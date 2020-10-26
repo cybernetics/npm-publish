@@ -4,7 +4,11 @@ Gradle plugin enabling NPM publishing (essentially `maven-publish` for NPM packa
 providing auto configurations.
 
 ## Setup
-Here's a bare minimum setup when using together with one of the kotlin plugins
+Here's a bare minimum setup when using together with one of the kotlin plugins. 
+This setup would produce the following tasks:
+* `assembleJsNpmPublication`
+* `packJsNpmPublication`
+* `publishJsNpmPublicationToNpmjs`
 
 ```kotlin
 plugins {
@@ -28,14 +32,23 @@ npmPublishing {
 }
 ```
 
+### Tasks
+The plugin generates the following gradle tasks for various configuration elements:
+* NpmPackageAssembleTask: generated for each publication and named as `assemble<UpperCammelCasePublicationName>NpmPublication`
+* NpmPackTask: generated for each publication and named as `pack<UpperCammelCasePublicationName>NpmPublication`
+* NpmPublishTask: generated for each publication + repository combination and named as `publish<UpperCammelCasePublicationName>NpmPublicationTo<UpperCammelCaseRepositoryName>`
+
+All created tasks are also added as dependencies to grouping task to allow for group-invocation:
+* NpmPackageAssembleTask: `assemble` task in `build` group
+* NpmPackTask: `pack` task in `build` group
+* NpmPublishTask: `publish` task in `publishing` group
+
 ### Configuration
 You can add publications and npm repositories or override existing configuration defaults via npmPublishing extension.
 When kotlin JS/MPP plugin is applied, this plugin will automatically create a publication for each JS target you JS/MPP project has.
 
 #### DSL
 ```kotlin
-import lt.petuska.npm.publish.dsl.NpmAccess
-
 npmPublishing {
   readme = file("README.MD") // (optional) Default readme file
   organization = "my.org" // (Optional) Used as default scope for all publications
