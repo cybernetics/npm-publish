@@ -32,17 +32,6 @@ npmPublishing {
 }
 ```
 
-### Tasks
-The plugin generates the following gradle tasks for various configuration elements:
-* NpmPackageAssembleTask: generated for each publication and named as `assemble<UpperCammelCasePublicationName>NpmPublication`
-* NpmPackTask: generated for each publication and named as `pack<UpperCammelCasePublicationName>NpmPublication`
-* NpmPublishTask: generated for each publication + repository combination and named as `publish<UpperCammelCasePublicationName>NpmPublicationTo<UpperCammelCaseRepositoryName>`
-
-All created tasks are also added as dependencies to grouping task to allow for group-invocation:
-* NpmPackageAssembleTask: `assemble` task in `build` group
-* NpmPackTask: `pack` task in `build` group
-* NpmPublishTask: `publish` task in `publishing` group
-
 ### Configuration
 You can add publications and npm repositories or override existing configuration defaults via npmPublishing extension.
 When kotlin JS/MPP plugin is applied, this plugin will automatically create a publication for each JS target you JS/MPP project has.
@@ -157,6 +146,17 @@ Repository:
 * `npm.publish.repository.<name>.registry`
 * `npm.publish.repository.<name>.otp`
 * `npm.publish.repository.<name>.authToken`
+
+## Tasks
+The plugin generates the following gradle tasks for various configuration elements:
+* NpmPackageAssembleTask: generated for each publication and named as `assemble<UpperCammelCasePublicationName>NpmPublication`
+* NpmPackTask: generated for each publication and named as `pack<UpperCammelCasePublicationName>NpmPublication`
+* NpmPublishTask: generated for each publication + repository combination and named as `publish<UpperCammelCasePublicationName>NpmPublicationTo<UpperCammelCaseRepositoryName>`
+
+All created tasks are also added as dependencies to grouping task to allow for group-invocation:
+* NpmPackageAssembleTask: `assemble` task in `build` group
+* NpmPackTask: `pack` task in `build` group
+* NpmPublishTask: `publish` task in `publishing` group
 
 ## Dependency Resolution
 Npm dependencies detected/declared for each publication are resolved into relevant 
