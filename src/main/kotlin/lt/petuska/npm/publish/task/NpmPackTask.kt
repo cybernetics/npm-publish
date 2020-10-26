@@ -48,16 +48,14 @@ open class NpmPackTask @Inject constructor(
 
   @TaskAction
   private fun doAction() {
-    project.exec {
-      it.workingDir = destinationDir
-      val cmd = listOfNotNull(
-        node,
-        npm,
+    npmExec(
+      listOf(
         "pack",
         packageDir,
         if (dry) "--dry-run" else null
-      ).toTypedArray()
-      it.commandLine(*cmd)
+      )
+    ) {
+      workingDir = destinationDir
     }
   }
 }

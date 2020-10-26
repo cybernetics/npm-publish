@@ -320,6 +320,10 @@ public abstract class lt/petuska/npm/publish/task/NpmExecTask : org/gradle/api/D
 	public final fun getNode ()Ljava/io/File;
 	public fun getNodeJsDir ()Ljava/io/File;
 	public final fun getNpm ()Ljava/io/File;
+	public final fun nodeExec (Ljava/util/Collection;Lkotlin/jvm/functions/Function1;)Lorg/gradle/process/ExecResult;
+	public static synthetic fun nodeExec$default (Llt/petuska/npm/publish/task/NpmExecTask;Ljava/util/Collection;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/gradle/process/ExecResult;
+	public final fun npmExec (Ljava/util/Collection;Lkotlin/jvm/functions/Function1;)Lorg/gradle/process/ExecResult;
+	public static synthetic fun npmExec$default (Llt/petuska/npm/publish/task/NpmExecTask;Ljava/util/Collection;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/gradle/process/ExecResult;
 }
 
 public class lt/petuska/npm/publish/task/NpmPackTask : lt/petuska/npm/publish/task/NpmExecTask {
