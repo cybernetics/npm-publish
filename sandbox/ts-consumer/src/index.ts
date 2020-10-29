@@ -15,8 +15,11 @@ const extendedPerson: test.sandbox.ExtendedPerson = {
 test.sandbox.sayFormalHello(extendedPerson)
 
 const buggedPerson: test.sandbox.BuggedPerson = {
+    getSafeName(): string {
+        return 'Safe Word "fun"'
+    },
     name: "Should",
-    sureName: "Not Work",
+    sureName: "Not Work"
 }
 test.sandbox.sayFormalBuggedHello(buggedPerson)
 
