@@ -5,6 +5,8 @@ fun sayHello(name: Name = "Mr. PP Trump"): Name = "Hello from $name".also { prin
 
 @JsExport
 fun sayFormalHello(person: Person): Name = "Hello from ${person.name} ${person.sureName}".also { println(it) }
+@JsExport
+fun sayFormalBuggedHello(person: BuggedPerson): Name = "Hello from ${person.name} ${person.sureName}".also { println(it) }
 
 typealias Name = String
 
@@ -12,6 +14,17 @@ typealias Name = String
 // while backing JS will have them as getters (Person.get_name()) instead of fields (Person.name)
 @JsExport
 external interface Person {
-  val name:String
-  val sureName:String
+  val name: String
+  val sureName: String
+}
+
+@JsExport
+interface ExtendedPerson : Person {
+  override val name: String
+}
+
+@JsExport
+interface BuggedPerson {
+  val name: String
+  val sureName: String
 }
