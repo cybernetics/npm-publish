@@ -6,18 +6,15 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "start:ts": "ts-node src/index.ts",
-    "start:js": "node src/js.js"
+    "run": "nodemon src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ts-node": "^9.0.0",
+    "nodemon": "^2.0.6",
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@lt.petuska/js": "^1.0.2-sw",
-    "@lt.petuska/mpp-IR": "^1.0.2",
-    "@lt.petuska/mpp-Legacy": "^1.0.2"
+    "@lt.petuska/mpp-IR": "file:../mpp/build/publications/npm/lt.petuska-mpp-IR-1.0.2.tgz"
   }
 }
