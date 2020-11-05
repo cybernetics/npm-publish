@@ -1,4 +1,7 @@
 import {test} from "@lt.petuska/mpp-IR";
+// @ts-ignore
+import ktor from 'kotlinx-coroutines-core';
+console.log(ktor)
 
 console.log("Hi");
 test.sandbox.sayHello("Martynas");
