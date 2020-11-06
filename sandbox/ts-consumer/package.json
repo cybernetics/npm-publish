@@ -16,7 +16,7 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "@lt.petuska/js": "^1.0.2-lm1",
+    "@lt.petuska/js": "^1.0.2-op",
     "@lt.petuska/mpp-IR": "file:../mpp/build/publications/npm/lt.petuska-mpp-IR-1.0.2.tgz",
     "@lt.petuska/mpp-Legacy": "file:../mpp/build/publications/npm/lt.petuska-mpp-Legacy-1.0.2.tgz"
   }
