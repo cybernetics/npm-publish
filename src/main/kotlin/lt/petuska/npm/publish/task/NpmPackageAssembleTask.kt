@@ -5,7 +5,9 @@ import lt.petuska.npm.publish.delegate.fallbackDelegate
 import lt.petuska.npm.publish.delegate.gradleProperty
 import lt.petuska.npm.publish.dsl.JsonObject
 import lt.petuska.npm.publish.dsl.NpmPublication
+import lt.petuska.npm.publish.dsl.NpmShrinkwrapJson
 import lt.petuska.npm.publish.dsl.PackageJson
+import lt.petuska.npm.publish.dsl.writeTo
 import lt.petuska.npm.publish.npmPublishing
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
@@ -84,7 +86,7 @@ open class NpmPackageAssembleTask @Inject constructor(
   private fun Kotlin2JsCompile.copyKotlinDependencies(): Map<String, String>? = try {
     val gson = Gson()
     val rawPJS = gson.fromJson(destinationDir.resolve("../package.json").readText(), GsonObject::class.java)
-    val kotlinDeps = rawPJS["dependencies"]?.asJsonObject?.entrySet()
+    val kotlinDeps = rawPJS["dependencies"].asJsonObject.entrySet()
       ?.map { it.key to it.value.asString }
       ?.filter { it.second.run { startsWith("file:") && contains("packages_imported") } }
       ?.map { (key, value) -> key to File(value.removePrefix("file:")) }
@@ -110,7 +112,7 @@ open class NpmPackageAssembleTask @Inject constructor(
     if (npmVersion.endsWith("-SNAPSHOT")) {
       npmVersion = npmVersion.replace("-SNAPSHOT", "-${System.currentTimeMillis()}")
     }
-    PackageJson(moduleName, npmVersion, scope) {
+    val packageJson = PackageJson(moduleName, npmVersion, scope) {
       if (packageJson != null) {
         packageJson!!.invoke(this@PackageJson)
       } else {
@@ -139,6 +141,10 @@ open class NpmPackageAssembleTask @Inject constructor(
         bundledDependencies = resolveBundledDependencies(this, kotlinDependencies)
       }
     }.writeTo(File(destinationDir, "package.json"))
+
+    if (publication.shrinkwrapBundledDependencies) {
+      packageJson.generateNpmShrinkwrapJson().writeTo(File(destinationDir, "npm-shrinkwrap.json"))
+    }
   }
 
   private fun NpmPublication.resolveDependencies() = npmDependencies.groupBy { dep -> dep.scope }
@@ -186,6 +192,24 @@ open class NpmPackageAssembleTask @Inject constructor(
           if (bd.contains(n)) {
             n to v
           }
+        }
+      }
+    }
+  }
+
+  private fun PackageJson.generateNpmShrinkwrapJson() = NpmShrinkwrapJson(name!!, version!!) {
+    val npmDependencies: Set<MutableMap.MutableEntry<String, String?>> = with(this@generateNpmShrinkwrapJson) {
+      val acc = mutableSetOf<MutableMap.MutableEntry<String, String?>>()
+      optionalDependencies?.entries?.let { acc.addAll(it) }
+      peerDependencies?.entries?.let { acc.addAll(it) }
+      devDependencies?.entries?.let { acc.addAll(it) }
+      dependencies?.entries?.let { acc.addAll(it) }
+      acc
+    }
+    bundledDependencies?.forEach { bundledDependency ->
+      npmDependencies.find { it.key == bundledDependency }?.let { (npmName, npmVersion) ->
+        this@NpmShrinkwrapJson.dependencies {
+          dependency(npmName, npmVersion!!, true)
         }
       }
     }
