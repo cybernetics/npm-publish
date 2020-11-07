@@ -198,17 +198,9 @@ open class NpmPackageAssembleTask @Inject constructor(
   }
 
   private fun PackageJson.generateNpmShrinkwrapJson() = NpmShrinkwrapJson(name!!, version!!) {
-    val npmDependencies: Set<MutableMap.MutableEntry<String, String?>> = with(this@generateNpmShrinkwrapJson) {
-      val acc = mutableSetOf<MutableMap.MutableEntry<String, String?>>()
-      optionalDependencies?.entries?.let { acc.addAll(it) }
-      peerDependencies?.entries?.let { acc.addAll(it) }
-      devDependencies?.entries?.let { acc.addAll(it) }
-      dependencies?.entries?.let { acc.addAll(it) }
-      acc
-    }
     bundledDependencies?.forEach { bundledDependency ->
-      npmDependencies.find { it.key == bundledDependency }?.let { (npmName, npmVersion) ->
-        this@NpmShrinkwrapJson.dependencies {
+      this@generateNpmShrinkwrapJson.dependencies?.entries?.find { it.key == bundledDependency }?.let { (npmName, npmVersion) ->
+        dependencies {
           dependency(npmName, npmVersion!!, true)
         }
       }
