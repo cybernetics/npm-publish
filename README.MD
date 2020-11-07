@@ -177,4 +177,6 @@ This ensures that any given dependency does not appear in multiple dependency sc
 ## Known Issues
 * [#6435](https://github.com/npm/npm/issues/6435): npm and yarn tries to download bundled dependencies.
   Can be overcome for npm (sadly not yarn) with `shrinkwrapBundledDependencies` option. Note that it works fine for both 
-  package managers when installing from a tarball.
+  package managers when installing from a tarball. 
+  Bug [#2143](https://github.com/npm/cli/issues/2143) on the new npm repo, so please vote for that to get it fixed.
+  Bug [#8436](https://github.com/yarnpkg/yarn/issues/8436) on the yarn repo, so please vote for that to get it fixed.
