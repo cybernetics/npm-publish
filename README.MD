@@ -159,7 +159,7 @@ The plugin generates the following gradle tasks for various configuration elemen
 * NpmPackTask: generated for each publication and named as `pack<UpperCammelCasePublicationName>NpmPublication`
 * NpmPublishTask: generated for each publication + repository combination and named as `publish<UpperCammelCasePublicationName>NpmPublicationTo<UpperCammelCaseRepositoryName>`
 
-All created tasks are also added as dependencies to grouping tasks to allow for group-invocation:
+All created tasks are added as dependencies to grouping tasks to allow for group-invocation:
 * NpmPackageAssembleTask: `assemble` task in `build` group
 * NpmPackTask: `pack` task in `build` group
 * NpmPublishTask: `publish` task in `publishing` group
