@@ -16,9 +16,6 @@ plugins {
     idea
 }
 
-group = "lt.petuska"
-version = "1.0.3"
-
 buildscript {
     dependencies {
         classpath("org.jetbrains.kotlinx:binary-compatibility-validator:0.2.3")
@@ -26,6 +23,17 @@ buildscript {
 }
 apply(plugin = "binary-compatibility-validator")
 configure<ApiValidationExtension> {}
+
+group = "lt.petuska"
+version = "1.0.4"
+
+object Version {
+    private const val _kotlin = "1.4.20"
+    val kotlin: String get() = _kotlin.split(".").let { (major, minor, patch) ->
+        "[$major.$minor, $major.${minor + 1}[!!$major.$minor.$patch"
+    }
+    const val kotest = "4.1.0"
+}
 
 idea {
     module {
@@ -46,13 +54,6 @@ repositories {
     gradlePluginPortal()
 }
 
-object Version {
-    private const val _kotlin = "1.4.20"
-    val kotlin: String get() = _kotlin.split(".").let { (major, minor, patch) ->
-        "[$major.$minor, $major.${minor + 1}[!!$major.$minor.$patch"
-    }
-    const val kotest = "4.1.0"
-}
 kotlin {
     dependencies {
         api(kotlin("gradle-plugin", Version.kotlin))

@@ -1,5 +1,4 @@
 ## Changelog
-NPM Dependency resolution bugfixes.
 Gradle upgraded to 6.7.1
 Kotlin upgraded to 1.4.20
 
@@ -7,10 +6,7 @@ Kotlin upgraded to 1.4.20
 N/A
 
 ### New Features
-* New JS/IR model support for 1.4.20
+N/A
 
 ### Fixes
-* Fixed a bug that prevented normal npm dependencies from resolving when declared
-  in sourceSet dependencies or top-level `publication.dependencies` block
-* Fixed an issue with kotlin-gradle-plugin dependency declaration that always upgraded
-  consumer's kotlin version to the one used by the plugin.
+N/A
