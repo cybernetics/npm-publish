@@ -11,7 +11,7 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     id("com.gradle.plugin-publish") version "0.12.0"
-    id("org.jetbrains.dokka") version "1.4.0"
+    id("org.jetbrains.dokka") version "1.4.10.2"
     id("org.jlleitschuh.gradle.ktlint") version "9.4.0"
     idea
 }
