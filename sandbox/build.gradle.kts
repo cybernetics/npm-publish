@@ -1,6 +1,6 @@
 plugins {
+  kotlin("multiplatform") version "1.4.20" apply false
   id("lt.petuska.npm.publish") version "1.0.3"
-  kotlin("multiplatform") version "1.4.10" apply false
 }
 
 allprojects {

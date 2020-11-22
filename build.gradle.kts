@@ -46,10 +46,17 @@ repositories {
     gradlePluginPortal()
 }
 
+object Version {
+    private const val _kotlin = "1.4.20"
+    val kotlin: String get() = _kotlin.split(".").let { (major, minor, patch) ->
+        "[$major.$minor, $major.${minor + 1}[!!$major.$minor.$patch"
+    }
+    const val kotest = "4.1.0"
+}
 kotlin {
     dependencies {
-        api(kotlin("gradle-plugin", "1.4.20"))
-        testImplementation("io.kotest:kotest-runner-junit5:4.1.0")
+        api(kotlin("gradle-plugin", Version.kotlin))
+        testImplementation("io.kotest:kotest-runner-junit5:${Version.kotest}")
     }
     target.compilations {
         val main by getting
