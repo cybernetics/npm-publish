@@ -1,5 +1,7 @@
 ## Changelog
-NPM Dependency resolution bugfixes
+NPM Dependency resolution bugfixes.
+Gradle upgraded to 6.7.1
+Kotlin upgraded to 1.4.20
 
 ### Breaking Changes
 N/A
