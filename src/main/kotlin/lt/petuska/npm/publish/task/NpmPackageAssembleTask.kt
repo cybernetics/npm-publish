@@ -149,11 +149,11 @@ open class NpmPackageAssembleTask @Inject constructor(
 
   private fun NpmPublication.resolveDependencies() = npmDependencies.groupBy { dep -> dep.scope }
     .let { deps ->
-      val dev = deps[NpmDependency.Scope.NORMAL]
-      val peer = deps[NpmDependency.Scope.NORMAL]
-      val optional = deps[NpmDependency.Scope.NORMAL]
+      val dev = deps[NpmDependency.Scope.DEV]
+      val peer = deps[NpmDependency.Scope.PEER]
+      val optional = deps[NpmDependency.Scope.OPTIONAL]
       fun NpmDependency.id() = "$scope:$name:$version"
-      fun List<NpmDependency>?.includes(other: NpmDependency) = this?.any { it.id() == other.id() } ?: true
+      fun List<NpmDependency>?.includes(other: NpmDependency) = this?.any { it.id() == other.id() } ?: false
 
       deps.entries.map { (scope, deps) ->
         scope to deps.filter { dep ->

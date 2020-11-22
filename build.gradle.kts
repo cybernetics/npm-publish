@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "lt.petuska"
-version = "1.0.2"
+version = "1.0.3"
 
 buildscript {
     dependencies {
@@ -48,7 +48,7 @@ repositories {
 
 kotlin {
     dependencies {
-        api(kotlin("gradle-plugin", "1.4.10"))
+        api(kotlin("gradle-plugin", "1.4.20"))
         testImplementation("io.kotest:kotest-runner-junit5:4.1.0")
     }
     target.compilations {
