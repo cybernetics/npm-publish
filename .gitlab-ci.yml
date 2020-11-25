@@ -78,6 +78,7 @@ release:GitLab:
       - .gradle
 pages:
   stage: release
+  allow_failure: true
   script:
     - gradle dokkaHtml;
     - cp -avr build/dokka/html/ public;
