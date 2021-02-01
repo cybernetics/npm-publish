@@ -135,7 +135,7 @@ open class NpmPackageAssembleTask @Inject constructor(
         val groupedDependencies = resolveDependencies()
         groupedDependencies.forEach { (scope, deps) ->
           val initialDeps: JsonObject<String> = when (scope) {
-            NpmDependency.Scope.NORMAL -> dependencies ?: JsonObject<String>().also { dependencies = it }
+            NpmDependency.Scope.NORMAL -> JsonObject<String>().also { dependencies = it + dependencies }
             NpmDependency.Scope.DEV -> devDependencies ?: JsonObject<String>().also { devDependencies = it }
             NpmDependency.Scope.OPTIONAL -> optionalDependencies ?: JsonObject<String>().also { optionalDependencies = it }
             NpmDependency.Scope.PEER -> peerDependencies ?: JsonObject<String>().also { peerDependencies = it }

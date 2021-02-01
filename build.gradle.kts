@@ -25,7 +25,7 @@ apply(plugin = "binary-compatibility-validator")
 configure<ApiValidationExtension> {}
 
 group = "lt.petuska"
-version = "1.0.4"
+version = "1.1.0"
 
 object Version {
     private const val _kotlin = "1.4.20"
